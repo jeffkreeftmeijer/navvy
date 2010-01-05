@@ -10,9 +10,11 @@ begin
     gem.email = "jeff@kreeftmeijer.nl"
     gem.homepage = "http://github.com/jeffkreeftmeijer/navvy"
     gem.authors = ["Jeff Kreeftmeijer"]
-    gem.add_development_dependency "bacon",     ">= 1.1.0"
-    gem.add_development_dependency "yard",      ">= 0.5.2"
-    gem.add_development_dependency "metric_fu", ">= 1.1.6"
+    gem.add_development_dependency "bacon",                 ">= 1.1.0"
+    gem.add_development_dependency "yard",                  ">= 0.5.2"
+    gem.add_development_dependency "metric_fu",             ">= 1.1.6"
+    gem.add_development_dependency "machinist",             ">= 1.0.6"
+    gem.add_development_dependency "machinist_mongomapper", ">= 0.9.7"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
