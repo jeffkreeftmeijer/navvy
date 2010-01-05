@@ -5,7 +5,7 @@ describe Navvy::Job do
     before do
       MongoMapper.database = 'navvy_test'
     end
-                      
+
     describe ' .enqueue' do
       before(:each) do
         Navvy::Job.delete_all
@@ -35,8 +35,38 @@ describe Navvy::Job do
         job.arguments.should == [true, false]
       end
     end
+
+    describe ' .next' do
+      before(:each) do
+        Navvy::Job.delete_all
+        Navvy::Job.enqueue(Cow, :speak)
+        Navvy::Job.enqueue(Cow, :sleep)
+      end
+
+      it 'should find the first job' do
+        job = Navvy::Job.next
+        job.should be_instance_of Navvy::Job
+        job.method.should == :speak
+      end
+    end
+
+    describe ' .run' do
+      describe 'when everything goes well' do
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :speak)
+        end
+
+        it 'should run the job and delete it' do
+          job = Navvy::Job.next
+          job.run.should == 'moo'
+          Navvy::Job.count.should == 0
+        end
+      end
+    end
   end
 end
+
 
 class Cow
   def self.speak

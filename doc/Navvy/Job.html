@@ -106,6 +106,58 @@ Add a job to the job queue.
 </li>
 
     
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#next-class_method" title="next (class method)">+ (Navvy::Job) <strong>next</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc">
+Find the next available job in the queue.
+
+</span>
+  
+</li>
+
+    
+  </ul>
+
+  <h2>Instance Method Summary</h2>
+
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-instance_method" title="#run (instance method)">- (String) <strong>run</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc">
+Run a job.
+
+</span>
+  
+</li>
+
+    
   </ul>
 
   
@@ -168,6 +220,23 @@ name of the method you want to run
       
     </li>
   
+    <li>
+      
+        <span class='type'>(<tt>*</tt>)</span>
+      
+      
+        <span class='name'>optional</span>
+      
+      
+      
+        &mdash;
+        
+arguments you want to pass to the method
+
+
+      
+    </li>
+  
 </ul>
 <h3>Returns:</h3>
 <ul class="return">
@@ -189,16 +258,16 @@ name of the method you want to run
       <pre class="lines">
 
 
-17
 18
 19
 20
 21
 22
-23</pre>
+23
+24</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 17</span>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 18</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enqueue identifier id'>enqueue</span><span class='lparen token'>(</span><span class='object identifier id'>object</span><span class='comma token'>,</span> <span class='method identifier id'>method</span><span class='comma token'>,</span> <span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span>
   <span class='create identifier id'>create</span><span class='lparen token'>(</span>
@@ -213,12 +282,144 @@ name of the method you want to run
 </table>
 </div>
     
+      <div class="method_details ">
+  <p class="signature " id="next-class_method">
+  
+    + (<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt>) <strong>next</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Find the next available job in the queue
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt>)</span>
+      
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 31</span>
+
+<span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='next identifier id'>next</span>
+  <span class='first identifier id'>first</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="run-instance_method">
+  
+    - (<tt>String</tt>) <strong>run</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Run a job
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h3>Examples:</h3>
+    
+      <h4></h4>
+      <pre class="example code">  <span class='job identifier id'>job</span> <span class='assign token'>=</span> <span class='Navvy constant id'>Navvy</span><span class='colon2 op'>::</span><span class='Job constant id'>Job</span><span class='dot token'>.</span><span class='next identifier id'>next</span> <span class='comment val'># finds the next available job in the queue</span>
+  <span class='job identifier id'>job</span><span class='dot token'>.</span><span class='run identifier id'>run</span>               <span class='comment val'># runs the job and returns the job's return value</span>
+</pre>
+    
+  </div>
+<h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+      
+        &mdash;
+        
+the return value of the called method
+
+
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 44</span>
+
+<span class='def def kw'>def</span> <span class='run identifier id'>run</span>
+  <span class='result identifier id'>result</span> <span class='assign token'>=</span> <span class='object identifier id'>object</span><span class='dot token'>.</span><span class='constantize identifier id'>constantize</span><span class='dot token'>.</span><span class='send identifier id'>send</span><span class='lparen token'>(</span><span class='method identifier id'>method</span><span class='rparen token'>)</span>
+  <span class='destroy identifier id'>destroy</span>
+  <span class='result identifier id'>result</span>
+<span class='end end kw'>end</span>
+</pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
     
     <div id="footer">
-  Generated on Tue Jan  5 23:26:37 2010 by 
+  Generated on Wed Jan  6 00:42:18 2010 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool">yard</a>
   0.5.2 (ruby-1.8.7).
 </div>

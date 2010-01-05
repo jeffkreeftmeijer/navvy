@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-01-05}
+  s.date = %q{2010-01-06}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -19,10 +19,32 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
      ".gitignore",
+     ".yardoc/checksums",
+     ".yardoc/objects/Navvy.dat",
+     ".yardoc/objects/Navvy/Job.dat",
+     ".yardoc/objects/Navvy/Job/enqueue_c.dat",
+     ".yardoc/objects/root.dat",
+     ".yardoc/proxy_types",
      "LICENSE",
      "README.textile",
      "Rakefile",
      "VERSION",
+     "doc/Navvy.html",
+     "doc/Navvy/Job.html",
+     "doc/_index.html",
+     "doc/class_list.html",
+     "doc/css/common.css",
+     "doc/css/full_list.css",
+     "doc/css/style.css",
+     "doc/file.README.html",
+     "doc/file_list.html",
+     "doc/index.html",
+     "doc/js/app.js",
+     "doc/js/full_list.js",
+     "doc/js/jquery.js",
+     "doc/method_list.html",
+     "doc/top-level-namespace.html",
+     "lib/job/mongo_mapper.rb",
      "lib/navvy.rb",
      "navvy.gemspec",
      "spec/navvy_spec.rb",
@@ -46,14 +68,20 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_development_dependency(%q<yard>, [">= 0.5.2"])
       s.add_development_dependency(%q<metric_fu>, [">= 1.1.6"])
+      s.add_development_dependency(%q<machinist>, [">= 1.0.6"])
+      s.add_development_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
     else
       s.add_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_dependency(%q<yard>, [">= 0.5.2"])
       s.add_dependency(%q<metric_fu>, [">= 1.1.6"])
+      s.add_dependency(%q<machinist>, [">= 1.0.6"])
+      s.add_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
     end
   else
     s.add_dependency(%q<bacon>, [">= 1.1.0"])
     s.add_dependency(%q<yard>, [">= 0.5.2"])
     s.add_dependency(%q<metric_fu>, [">= 1.1.6"])
+    s.add_dependency(%q<machinist>, [">= 1.0.6"])
+    s.add_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
   end
 end
