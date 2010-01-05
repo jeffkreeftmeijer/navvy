@@ -5,15 +5,16 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "navvy"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
+    gem.description = %Q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
     gem.email = "jeff@kreeftmeijer.nl"
     gem.homepage = "http://github.com/jeffkreeftmeijer/navvy"
     gem.authors = ["Jeff Kreeftmeijer"]
-    gem.add_development_dependency "rspec"
-    gem.add_development_dependency "yard"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+    gem.add_development_dependency "bacon",     ">= 1.1.0"
+    gem.add_development_dependency "yard",      ">= 0.5.2"
+    gem.add_development_dependency "metric_fu", ">= 1.1.6"
   end
+  Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
@@ -42,3 +43,5 @@ rescue LoadError
     abort "YARD is not available. In order to run yardoc, you must: sudo gem install yard"
   end
 end
+
+require 'metric_fu'
