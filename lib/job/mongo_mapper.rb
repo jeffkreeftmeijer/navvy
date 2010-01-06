@@ -6,8 +6,13 @@ module Navvy
   class Job
     include MongoMapper::Document
     
+    key :object,    String
+    key :method,    Symbol
+    key :arguments, Array
+    key :exception, String
+    key :run_at,    Time
     key :failed_at, Time
-
+    
     ##
     # Add a job to the job queue
     #
@@ -21,6 +26,7 @@ module Navvy
       create(
         :object =>    object.name,
         :method =>    method.to_sym,
+        :run_at =>    Time.now,
         :arguments => args
       )
     end
@@ -31,7 +37,10 @@ module Navvy
     # @return [Navvy::Job, nil] next available job or nil if no jobs were found
 
     def self.next
-      first(:failed_at => nil)
+      first(
+        :failed_at => nil,
+        :run_at => {'$lte', Time.now}        
+      )
     end
 
     ##

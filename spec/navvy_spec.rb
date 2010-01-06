@@ -34,6 +34,13 @@ describe Navvy::Job do
         job = Navvy::Job.first
         job.arguments.should == [true, false]
       end
+      
+      it 'should set the run_at date' do
+        Navvy::Job.enqueue(Cow, :speak, true, false)
+        job = Navvy::Job.first
+        job.run_at.should be_instance_of Time
+        job.run_at.should <= Time.now
+      end
     end
 
     describe ' .next' do
@@ -43,6 +50,11 @@ describe Navvy::Job do
           :object =>    'Cow',
           :method =>    :break,
           :failed_at => Time.now
+        )
+        Navvy::Job.create(
+          :object =>  'Cow',
+          :method =>  :tomorrow,
+          :run_at =>  Time.now + 1.day
         )
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.enqueue(Cow, :sleep)
