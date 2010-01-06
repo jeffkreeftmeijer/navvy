@@ -7,3 +7,13 @@ require 'spec/autorun'
 Spec::Runner.configure do |config|
 
 end
+
+class Cow
+  def self.speak
+    'moo'
+  end
+
+  def self.broken
+    raise 'this method is broken'
+  end
+end

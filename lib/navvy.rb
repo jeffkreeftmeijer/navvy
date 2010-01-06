@@ -5,7 +5,7 @@ module Navvy
       loop do
         if job = Job.next
           result = job.run
-          if job.failed_at? 
+          if job.failed_at?
             puts "* #{Time.now} - Job failed - '#{job.exception}'"
           else
             puts "* #{Time.now} - Job complete - '#{result}'"

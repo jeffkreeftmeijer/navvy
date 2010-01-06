@@ -26,7 +26,8 @@ Gem::Specification.new do |s|
      "lib/job/mongo_mapper.rb",
      "lib/navvy.rb",
      "navvy.gemspec",
-     "spec/navvy_spec.rb",
+     "spec/job/mongo_mapper_spec.rb",
+     "spec/setup/mongo_mapper.rb",
      "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/jeffkreeftmeijer/navvy}
@@ -35,7 +36,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.test_files = [
-    "spec/navvy_spec.rb",
+    "spec/job/mongo_mapper_spec.rb",
+     "spec/setup/mongo_mapper.rb",
      "spec/spec_helper.rb"
   ]
 
