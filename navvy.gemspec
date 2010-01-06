@@ -23,6 +23,8 @@ Gem::Specification.new do |s|
      ".yardoc/objects/Navvy.dat",
      ".yardoc/objects/Navvy/Job.dat",
      ".yardoc/objects/Navvy/Job/enqueue_c.dat",
+     ".yardoc/objects/Navvy/Job/next_c.dat",
+     ".yardoc/objects/Navvy/Job/run_i.dat",
      ".yardoc/objects/root.dat",
      ".yardoc/proxy_types",
      "LICENSE",

@@ -67,7 +67,6 @@ describe Navvy::Job do
   end
 end
 
-
 class Cow
   def self.speak
     'moo'
