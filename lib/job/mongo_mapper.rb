@@ -1,10 +1,12 @@
 require 'rubygems'
 require 'mongo_mapper'
+MongoMapper.database = 'navvy_test'
 
 module Navvy
   class Job
     include MongoMapper::Document
-    key :error, String
+    
+    key :failed_at, Time
 
     ##
     # Add a job to the job queue
@@ -26,10 +28,10 @@ module Navvy
     ##
     # Find the next available job in the queue
     #
-    # @return [Navvy::Job]
+    # @return [Navvy::Job, nil] next available job or nil if no jobs were found
 
     def self.next
-      first
+      first(:failed_at => nil)
     end
 
     ##
@@ -42,9 +44,16 @@ module Navvy
     # @return [String] return value of the called method
 
     def run
-      result = object.constantize.send(method)
-      destroy
-      result
+      begin
+        result = object.constantize.send(method)
+        destroy
+        result
+      rescue Exception => exception
+        update_attributes({
+          :exception => exception.message,
+          :failed_at => Time.now
+        })
+      end
     end
   end
 end

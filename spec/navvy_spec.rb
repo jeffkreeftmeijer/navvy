@@ -39,11 +39,16 @@ describe Navvy::Job do
     describe ' .next' do
       before(:each) do
         Navvy::Job.delete_all
+        Navvy::Job.create(
+          :object =>    'Cow',
+          :method =>    :break,
+          :failed_at => Time.now
+        )
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.enqueue(Cow, :sleep)
       end
 
-      it 'should find the first job' do
+      it 'should find the next available job' do
         job = Navvy::Job.next
         job.should be_instance_of Navvy::Job
         job.method.should == :speak
@@ -63,6 +68,21 @@ describe Navvy::Job do
           Navvy::Job.count.should == 0
         end
       end
+      
+      describe 'when a job fails' do
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :broken)
+        end
+        
+        it 'should store the exception and current time' do
+          job = Navvy::Job.next
+          job.run
+          Navvy::Job.count.should == 1
+          job.exception.should == 'this method is broken'
+          job.failed_at.should be_instance_of Time
+        end
+      end
     end
   end
 end
@@ -70,5 +90,9 @@ end
 class Cow
   def self.speak
     'moo'
+  end
+  
+  def self.broken
+    raise 'this method is broken'
   end
 end

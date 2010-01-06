@@ -109,7 +109,7 @@ Add a job to the job queue.
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#next-class_method" title="next (class method)">+ (Navvy::Job) <strong>next</strong> </a>
+      <a href="#next-class_method" title="next (class method)">+ (Navvy::Job<sup>?</sup>) <strong>next</strong> </a>
     
 
     
@@ -258,16 +258,16 @@ arguments you want to pass to the method
       <pre class="lines">
 
 
-18
-19
 20
 21
 22
 23
-24</pre>
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 20</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='enqueue identifier id'>enqueue</span><span class='lparen token'>(</span><span class='object identifier id'>object</span><span class='comma token'>,</span> <span class='method identifier id'>method</span><span class='comma token'>,</span> <span class='mult op'>*</span><span class='args identifier id'>args</span><span class='rparen token'>)</span>
   <span class='create identifier id'>create</span><span class='lparen token'>(</span>
@@ -285,7 +285,7 @@ arguments you want to pass to the method
       <div class="method_details ">
   <p class="signature " id="next-class_method">
   
-    + (<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt>) <strong>next</strong> 
+    + (<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt><sup>?</sup>) <strong>next</strong> 
   
 
   
@@ -304,10 +304,16 @@ Find the next available job in the queue
   
     <li>
       
-        <span class='type'>(<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt>)</span>
+        <span class='type'>(<tt><a href="" title="Navvy::Job">Navvy::Job</a></tt>, <tt>nil</tt>)</span>
       
       
       
+      
+        &mdash;
+        
+next available job or nil if no jobs were found
+
+
       
     </li>
   
@@ -319,15 +325,15 @@ Find the next available job in the queue
       <pre class="lines">
 
 
-31
-32
-33</pre>
+33
+34
+35</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 31</span>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 33</span>
 
 <span class='def def kw'>def</span> <span class='self self kw'>self</span><span class='dot token'>.</span><span class='next identifier id'>next</span>
-  <span class='first identifier id'>first</span>
+  <span class='first identifier id'>first</span><span class='lparen token'>(</span><span class='symbol val'>:failed_at</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='nil nil kw'>nil</span><span class='rparen token'>)</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -394,19 +400,33 @@ return value of the called method
       <pre class="lines">
 
 
-44
-45
 46
 47
-48</pre>
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/job/mongo_mapper.rb', line 46</span>
 
 <span class='def def kw'>def</span> <span class='run identifier id'>run</span>
-  <span class='result identifier id'>result</span> <span class='assign token'>=</span> <span class='object identifier id'>object</span><span class='dot token'>.</span><span class='constantize identifier id'>constantize</span><span class='dot token'>.</span><span class='send identifier id'>send</span><span class='lparen token'>(</span><span class='method identifier id'>method</span><span class='rparen token'>)</span>
-  <span class='destroy identifier id'>destroy</span>
-  <span class='result identifier id'>result</span>
+  <span class='begin begin kw'>begin</span>
+    <span class='result identifier id'>result</span> <span class='assign token'>=</span> <span class='object identifier id'>object</span><span class='dot token'>.</span><span class='constantize identifier id'>constantize</span><span class='dot token'>.</span><span class='send identifier id'>send</span><span class='lparen token'>(</span><span class='method identifier id'>method</span><span class='rparen token'>)</span>
+    <span class='destroy identifier id'>destroy</span>
+    <span class='result identifier id'>result</span>
+  <span class='rescue rescue kw'>rescue</span> <span class='Exception constant id'>Exception</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='exception identifier id'>exception</span>
+    <span class='update_attributes identifier id'>update_attributes</span><span class='lparen token'>(</span><span class='lbrace token'>{</span>
+      <span class='symbol val'>:exception</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='exception identifier id'>exception</span><span class='dot token'>.</span><span class='message identifier id'>message</span><span class='comma token'>,</span>
+      <span class='symbol val'>:failed_at</span> <span class='assign token'>=</span><span class='gt op'>&gt;</span> <span class='Time constant id'>Time</span><span class='dot token'>.</span><span class='now identifier id'>now</span>
+    <span class='rbrace token'>}</span><span class='rparen token'>)</span>
+  <span class='end end kw'>end</span>
 <span class='end end kw'>end</span>
 </pre>
     </td>
@@ -419,7 +439,7 @@ return value of the called method
 </div>
     
     <div id="footer">
-  Generated on Wed Jan  6 01:01:50 2010 by 
+  Generated on Wed Jan  6 10:52:43 2010 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool">yard</a>
   0.5.2 (ruby-1.8.7).
 </div>
