@@ -1,8 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe Navvy::Job do
+describe 'Navvy::Job' do
   describe 'using MongoMapper' do
     before do
+      require File.expand_path(File.dirname(__FILE__) + '/../lib/job/mongo_mapper')
       MongoMapper.database = 'navvy_test'
     end
 
