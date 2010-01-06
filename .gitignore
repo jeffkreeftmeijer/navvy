@@ -3,5 +3,6 @@
 .yardoc
 coverage
 rdoc
+doc
 pkg
 tmp
