@@ -4,8 +4,8 @@ describe 'Navvy::Job' do
   before do
     require File.expand_path(File.dirname(__FILE__) + '/../setup/mongo_mapper')
   end
-
-  describe ' .enqueue' do
+    
+  describe '.enqueue' do
     before(:each) do
       Navvy::Job.delete_all
     end
@@ -42,7 +42,7 @@ describe 'Navvy::Job' do
     end
   end
 
-  describe ' .next' do
+  describe '.next' do
     before(:each) do
       Navvy::Job.delete_all
       Navvy::Job.create(
@@ -55,18 +55,31 @@ describe 'Navvy::Job' do
         :method =>  :tomorrow,
         :run_at =>  Time.now + 1.day
       )
-      Navvy::Job.enqueue(Cow, :speak)
-      Navvy::Job.enqueue(Cow, :sleep)
+      12.times do 
+        Navvy::Job.enqueue(Cow, :speak)
+      end
     end
 
-    it 'should find the next available job' do
-      job = Navvy::Job.next
-      job.should be_instance_of Navvy::Job
-      job.method.should == :speak
+    it 'should find the next 10 available jobs' do
+      jobs = Navvy::Job.next
+      jobs.count.should == 10
+      jobs.each do |job|
+        job.should be_instance_of Navvy::Job
+        job.method.should == :speak
+      end
+    end
+    
+    it 'should find the next 2 available jobs' do
+      Navvy::Job.next(2).count.should == 2
+    end
+    
+    it 'should find the next 4 available jobs' do
+      Navvy::Job.limit = 4
+      Navvy::Job.next
     end
   end
 
-  describe ' .run' do
+  describe '#run' do
     describe 'when everything goes well' do
       before(:each) do
         Navvy::Job.delete_all
@@ -74,8 +87,8 @@ describe 'Navvy::Job' do
       end
 
       it 'should run the job and delete it' do
-        job = Navvy::Job.next
-        job.run.should == 'moo'
+        jobs = Navvy::Job.next
+        jobs.first.run.should == 'moo'
         Navvy::Job.count.should == 0
       end
     end
@@ -87,11 +100,11 @@ describe 'Navvy::Job' do
       end
 
       it 'should store the exception and current time' do
-        job = Navvy::Job.next
-        job.run
+        jobs = Navvy::Job.next
+        jobs.first.run
         Navvy::Job.count.should == 1
-        job.exception.should == 'this method is broken'
-        job.failed_at.should be_instance_of Time
+        jobs.first.exception.should == 'this method is broken'
+        jobs.first.failed_at.should be_instance_of Time
       end
     end
   end
