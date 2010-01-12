@@ -75,7 +75,7 @@ describe 'Navvy::Job' do
     
     it 'should find the next 4 available jobs' do
       Navvy::Job.limit = 4
-      Navvy::Job.next
+      Navvy::Job.next.count.should == 4
     end
   end
 

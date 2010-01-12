@@ -10,7 +10,7 @@ module Navvy
     # @return [Integer] limit
     
     def self.limit
-      10
+      @limit || 10
     end
   end
 end
