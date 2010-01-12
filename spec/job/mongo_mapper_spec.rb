@@ -91,6 +91,16 @@ describe 'Navvy::Job' do
         jobs.first.run.should == 'moo'
         Navvy::Job.count.should == 0
       end
+      
+      describe 'when Navvy::Job.keep is set' do
+        it 'should not delete the job and mark it as complete' do
+          Navvy::Job.keep = true
+          jobs = Navvy::Job.next
+          jobs.first.run
+          Navvy::Job.count.should == 1
+          jobs.first.completed_at.should_not be_nil
+        end
+      end
     end
 
     describe 'when a job fails' do

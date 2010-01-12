@@ -5,12 +5,13 @@ module Navvy
   class Job
     include MongoMapper::Document
 
-    key :object,    String
-    key :method,    Symbol
-    key :arguments, Array
-    key :exception, String
-    key :run_at,    Time
-    key :failed_at, Time
+    key :object,        String
+    key :method,        Symbol
+    key :arguments,     Array
+    key :exception,     String
+    key :run_at,        Time
+    key :completed_at,  Time
+    key :failed_at,     Time
 
     ##
     # Add a job to the job queue.
@@ -51,9 +52,10 @@ module Navvy
 
     ##
     # Run the job. Will delete the Navvy::Job record and return its return
-    # value if it runs successfully. If a job fails, it'll update the
-    # Navvy::Job record to include the exception message it sent back and set
-    # the :failed_at date. Failed jobs don't get deleted.
+    # value if it runs successfully unless Navvy::Job.keep is set. If a job 
+    # fails, it'll update the Navvy::Job record to include the exception 
+    # message it sent back and set the :failed_at date. Failed jobs never get 
+    # deleted.
     #
     # @example
     #   job = Navvy::Job.next # finds the next available job in the queue
@@ -64,7 +66,13 @@ module Navvy
     def run
       begin
         result = object.constantize.send(method)
-        destroy
+        if Navvy::Job.keep
+          update_attributes({
+            :completed_at => Time.now
+          })
+        else
+          destroy
+        end
         result
       rescue Exception => exception
         update_attributes({
