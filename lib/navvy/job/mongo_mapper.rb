@@ -20,7 +20,7 @@ module Navvy
     # @param [Symbol, String] method the name of the method you want to run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false] 
+    # @return [true, false]
 
     def self.enqueue(object, method, *args)
       create(
@@ -36,11 +36,11 @@ module Navvy
     # jobs (where :failed_at is not nil) and jobs that should run in the future
     # (where :run_at is greater than the current time).
     #
-    # @param [Integer] limit the limit of jobs to be fetched. Defaults to 
+    # @param [Integer] limit the limit of jobs to be fetched. Defaults to
     # Navvy::Job.limit
     #
     # @return [array, nil] the next available jobs in an array or nil if no
-    # jobsn were found.
+    # jobs were found.
 
     def self.next(limit = self.limit)
       all(
@@ -51,10 +51,27 @@ module Navvy
     end
 
     ##
+    # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
+    # false it'll delete everything, if it's a timestamp it'll only delete jobs
+    # that have passed their keeptime.
+
+    def self.cleanup
+      if keep.is_a? Fixnum
+        delete_all(
+          :completed_at => {'$lte' => keep.ago}
+        )
+      else
+        delete_all(
+          :completed_at => {'$ne' => nil}
+        ) unless keep?
+      end
+    end
+
+    ##
     # Run the job. Will delete the Navvy::Job record and return its return
-    # value if it runs successfully unless Navvy::Job.keep is set. If a job 
-    # fails, it'll update the Navvy::Job record to include the exception 
-    # message it sent back and set the :failed_at date. Failed jobs never get 
+    # value if it runs successfully unless Navvy::Job.keep is set. If a job
+    # fails, it'll update the Navvy::Job record to include the exception
+    # message it sent back and set the :failed_at date. Failed jobs never get
     # deleted.
     #
     # @example
@@ -66,7 +83,7 @@ module Navvy
     def run
       begin
         result = object.constantize.send(method)
-        if Navvy::Job.keep
+        if Navvy::Job.keep?
           update_attributes({
             :completed_at => Time.now
           })

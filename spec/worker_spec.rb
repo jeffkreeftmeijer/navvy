@@ -8,15 +8,15 @@ describe Navvy::Worker do
         Navvy::Job.enqueue(Cow, :speak),
         Navvy::Job.enqueue(Cow, :speak)
       ]
-      
+
       Navvy::Job.stub!(:next).and_return(@jobs)
-    end    
-    
+    end
+
     it 'should fetch jobs' do
       Navvy::Job.should_receive(:next).and_return(@jobs)
       Navvy::Worker.fetch_and_run_jobs
     end
-    
+
     it 'should run three jobs' do
       @jobs.each do |job|
         job.should_receive(:run)

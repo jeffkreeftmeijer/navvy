@@ -12,5 +12,16 @@ module Navvy
     def self.limit
       @limit || 10
     end
+    
+    ##
+    # Should the job be kept?
+    #
+    # @return [true, false] keep
+    
+    def self.keep?
+      keep = (@keep || false)
+      return keep.from_now >= Time.now if keep.is_a? Fixnum
+      keep
+    end
   end
 end

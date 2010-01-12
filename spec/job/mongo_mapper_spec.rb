@@ -78,12 +78,50 @@ describe 'Navvy::Job' do
       Navvy::Job.next.count.should == 4
     end
   end
-
+  
+  describe '.cleanup' do
+    before(:each) do
+      Navvy::Job.delete_all
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method =>      :speak,
+        :completed_at => Time.now - 2.days
+      )
+      Navvy::Job.create(
+        :object =>        'Cow',
+        :method =>        :speak,
+        :completed_at =>  Time.now
+      )
+      Navvy::Job.create(
+        :object =>        'Cow',
+        :method =>        :speak
+      )
+    end
+    
+    it 'should delete all complete jobs when "keep" is false' do
+      Navvy::Job.cleanup
+      Navvy::Job.count.should == 1
+    end
+    
+    it 'should not delete any complete jobs when "keep" is true' do
+      Navvy::Job.keep = true
+      Navvy::Job.cleanup
+      Navvy::Job.count.should == 3
+    end
+    
+    it 'should delete all complete jobs where "keep" has passed' do
+      Navvy::Job.keep = 1.day
+      Navvy::Job.cleanup
+      Navvy::Job.count.should == 2
+    end
+  end
+  
   describe '#run' do
     describe 'when everything goes well' do
       before(:each) do
         Navvy::Job.delete_all
         Navvy::Job.enqueue(Cow, :speak)
+        Navvy::Job.keep = false
       end
 
       it 'should run the job and delete it' do
@@ -94,11 +132,20 @@ describe 'Navvy::Job' do
       
       describe 'when Navvy::Job.keep is set' do
         it 'should not delete the job and mark it as complete' do
-          Navvy::Job.keep = true
+          [true, 1.day].each do |keep|
+            Navvy::Job.keep = keep
+            jobs = Navvy::Job.next
+            jobs.first.run
+            Navvy::Job.count.should == 1
+            jobs.first.completed_at.should_not be_nil
+          end
+        end
+        
+        it 'should delete the job when the "keep" flag has passed' do
+          Navvy::Job.keep = -1.day
           jobs = Navvy::Job.next
           jobs.first.run
-          Navvy::Job.count.should == 1
-          jobs.first.completed_at.should_not be_nil
+          Navvy::Job.count.should == 0
         end
       end
     end
