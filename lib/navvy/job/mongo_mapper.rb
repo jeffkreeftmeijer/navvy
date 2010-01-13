@@ -119,5 +119,17 @@ module Navvy
         :exception => message
       })
     end
+    
+    ##
+    # Check if the job has been run. 
+    #
+    # @return [true, false] ran
+    
+    def ran?
+      completed? || failed?
+    end
+    
+    alias_method :completed?, :completed_at?
+    alias_method :failed?,    :failed_at?
   end
 end

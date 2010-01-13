@@ -197,4 +197,20 @@ describe 'Navvy::Job' do
       jobs.first.exception.should == 'broken'
     end
   end
+  
+  describe '#ran?' do
+    it 'should return false when failed_at? and completed_at? are false' do
+      job = Navvy::Job.create
+      job.ran?.should be_false
+    end
+    
+    it 'should return true when failed_at? or completed_at? is true' do
+      [
+        Navvy::Job.create(:failed_at => Time.now),
+        Navvy::Job.create(:completed_at => Time.now)
+      ].each do |job|
+        job.ran?.should be_true
+      end
+    end
+  end
 end

@@ -1,7 +1,8 @@
 module Navvy
   class Job
     class << self
-      attr_accessor :limit, :keep
+      attr_writer :limit
+      attr_accessor :keep
     end
 
     ##

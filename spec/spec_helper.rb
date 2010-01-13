@@ -19,8 +19,13 @@ end
 
 class RailsLogger
   def self.info(text)
-    puts(text)
+  end
+end
+
+class Justlogging
+  def self.log(text)
   end
 end
 
 RAILS_DEFAULT_LOGGER = RailsLogger
+Navvy::Log.quiet = true
