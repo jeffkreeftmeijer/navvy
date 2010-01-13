@@ -47,9 +47,10 @@ module Navvy
 
     def self.next(limit = self.limit)
       all(
-        :failed_at => nil,
-        :run_at => {'$lte', Time.now},
-        :limit => limit
+        :failed_at =>     nil,
+        :completed_at =>  nil,
+        :run_at =>        {'$lte', Time.now},
+        :limit =>         limit
       )
     end
 

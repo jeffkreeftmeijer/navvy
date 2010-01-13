@@ -53,23 +53,30 @@ describe 'Navvy::Job' do
     before(:each) do
       Navvy::Job.delete_all
       Navvy::Job.create(
+        :object =>        'Cow',
+        :method =>        :break,
+        :completed_at =>  Time.now,
+        :run_at =>        Time.now
+      )
+      Navvy::Job.create(
         :object =>    'Cow',
         :method =>    :break,
-        :failed_at => Time.now
+        :failed_at => Time.now,
+        :run_at =>    Time.now
       )
       Navvy::Job.create(
         :object =>  'Cow',
         :method =>  :tomorrow,
         :run_at =>  Time.now + 1.day
       )
-      12.times do
+      120.times do
         Navvy::Job.enqueue(Cow, :speak)
       end
     end
 
     it 'should find the next 10 available jobs' do
       jobs = Navvy::Job.next
-      jobs.count.should == 10
+      jobs.count.should == 100
       jobs.each do |job|
         job.should be_instance_of Navvy::Job
         job.method.should == :speak
@@ -138,17 +145,24 @@ describe 'Navvy::Job' do
       end
 
       describe 'when Navvy::Job.keep is set' do
-        it 'should not delete the job and mark it as complete' do
-          [true, 1.day].each do |keep|
-            Navvy::Job.keep = keep
-            jobs = Navvy::Job.next
-            jobs.first.run
-            Navvy::Job.count.should == 1
-            jobs.first.started_at.should be_instance_of Time
-            jobs.first.completed_at.should be_instance_of Time
-          end
+        it 'should mark the job as complete when keep is true' do
+          Navvy::Job.keep = true
+          jobs = Navvy::Job.next
+          jobs.first.run
+          Navvy::Job.count.should == 1
+          jobs.first.started_at.should be_instance_of Time
+          jobs.first.completed_at.should be_instance_of Time
         end
-
+        
+        it 'should mark the job as complete when keep has not passed yer' do
+          Navvy::Job.keep = 1.day
+          jobs = Navvy::Job.next
+          jobs.first.run
+          Navvy::Job.count.should == 1
+          jobs.first.started_at.should be_instance_of Time
+          jobs.first.completed_at.should be_instance_of Time
+        end
+        
         it 'should delete the job when the "keep" flag has passed' do
           Navvy::Job.keep = -1.day
           jobs = Navvy::Job.next
