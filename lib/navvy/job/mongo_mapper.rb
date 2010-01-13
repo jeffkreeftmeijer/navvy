@@ -133,6 +133,15 @@ module Navvy
       completed? || failed?
     end
     
+    ##
+    # Check how long it took for a job to complete or fail
+    #
+    # @return [Time, Integer] time the time it took
+    
+    def duration
+      ran? ? (completed_at || failed_at) - started_at : 0
+    end
+    
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
   end
