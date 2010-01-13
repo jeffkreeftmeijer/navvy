@@ -165,4 +165,36 @@ describe 'Navvy::Job' do
       end
     end
   end
+
+  describe '#completed' do
+    before(:each) do
+      Navvy::Job.delete_all
+      Navvy::Job.enqueue(Cow, :speak)
+    end
+    
+    it 'should update the jobs completed_at date' do
+      jobs = Navvy::Job.next
+      jobs.first.completed
+      jobs.first.completed_at.should_not be_nil
+    end
+  end
+  
+  describe '#failed' do
+    before(:each) do
+      Navvy::Job.delete_all
+      Navvy::Job.enqueue(Cow, :speak)
+    end
+    
+    it 'should update the jobs failed_at date' do
+      jobs = Navvy::Job.next
+      jobs.first.failed
+      jobs.first.failed_at.should_not be_nil
+    end
+    
+    it 'should set the exception message if provided' do
+      jobs = Navvy::Job.next
+      jobs.first.failed('broken')
+      jobs.first.exception.should == 'broken'
+    end
+  end
 end

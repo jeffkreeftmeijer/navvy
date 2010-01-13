@@ -85,20 +85,39 @@ module Navvy
     def run
       begin
         result = object.constantize.send(method)
-        if Navvy::Job.keep?
-          update_attributes({
-            :completed_at => Time.now
-          })
-        else
-          destroy
-        end
+        Navvy::Job.keep? ? completed : destroy
         result
       rescue Exception => exception
-        update_attributes({
-          :exception => exception.message,
-          :failed_at => Time.now
-        })
+        failed(exception.message)
       end
+    end
+    
+    ##
+    # Mark the job as completed. Will set completed_at to the current time.
+    #
+    # @return [true, false] update_attributes the result of the
+    # update_attributes call
+    
+    def completed
+      update_attributes({
+        :completed_at => Time.now
+      })
+    end
+    
+    ##
+    # Mark the job as failed. Will set failed_at to the current time. And 
+    # optionally add the exception message if provided.
+    #
+    # @param [String] exception the exception message you want to store.
+    #
+    # @return [true, false] update_attributes the result of the
+    # update_attributes call
+    
+    def failed(message = nil)
+      update_attributes({
+        :failed_at => Time.now,
+        :exception => message
+      })
     end
   end
 end
