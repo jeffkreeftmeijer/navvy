@@ -1,25 +1,13 @@
 require 'rubygems'
-require 'mongo_mapper'
+require 'active_record'
 
 module Navvy
-  class Job
-    include MongoMapper::Document
+  class Job < ActiveRecord::Base
     class << self
       attr_writer :limit
       attr_accessor :keep
     end
 
-    key :object,        String
-    key :method,        Symbol
-    key :arguments,     Array
-    key :return,        String
-    key :exception,     String
-    key :created_at,    Time
-    key :run_at,        Time
-    key :started_at,    Time
-    key :completed_at,  Time
-    key :failed_at,     Time
-    
     ##
     # Default limit of jobs to be fetched
     #
@@ -52,7 +40,7 @@ module Navvy
     def self.enqueue(object, method, *args)
       create(
         :object =>      object.name,
-        :method =>      method.to_sym,
+        :method =>      method.to_s,
         :arguments =>   args,
         :run_at =>      Time.now,
         :created_at =>  Time.now
@@ -72,9 +60,10 @@ module Navvy
 
     def self.next(limit = self.limit)
       all(
-        :failed_at =>     nil,
-        :completed_at =>  nil,
-        :run_at =>        {'$lte', Time.now},
+        :conditions =>    [
+          '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
+          Time.now
+        ],
         :limit =>         limit,
         :order =>         'created_at'
       )
@@ -89,16 +78,17 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        delete_all(
-          :completed_at => {'$lte' => keep.ago}
-        )
+        delete_all([
+          '`completed_at` <= ?',
+          keep.ago
+        ])
       else
         delete_all(
-          :completed_at => {'$ne' => nil}
+          '`completed_at` IS NOT NULL'
         ) unless keep?
       end
     end
-
+    
     ##
     # Run the job. Will delete the Navvy::Job record and return its return
     # value if it runs successfully unless Navvy::Job.keep is set. If a job
@@ -122,58 +112,5 @@ module Navvy
         failed(exception.message)
       end
     end
-    
-    ##
-    # Mark the job as completed. Will set completed_at to the current time and 
-    # optionally add the return value if provided.
-    #
-    # @param [String] return_value the return value you want to store.
-    #
-    # @return [true, false] update_attributes the result of the
-    # update_attributes call
-    
-    def completed(return_value = nil)
-      update_attributes({
-        :completed_at =>  Time.now,
-        :return =>        return_value
-      })
-    end
-    
-    ##
-    # Mark the job as failed. Will set failed_at to the current time and 
-    # optionally add the exception message if provided.
-    #
-    # @param [String] exception the exception message you want to store.
-    #
-    # @return [true, false] update_attributes the result of the
-    # update_attributes call
-    
-    def failed(message = nil)
-      update_attributes({
-        :failed_at => Time.now,
-        :exception => message
-      })
-    end
-    
-    ##
-    # Check if the job has been run. 
-    #
-    # @return [true, false] ran
-    
-    def ran?
-      completed? || failed?
-    end
-    
-    ##
-    # Check how long it took for a job to complete or fail
-    #
-    # @return [Time, Integer] time the time it took
-    
-    def duration
-      ran? ? (completed_at || failed_at) - started_at : 0
-    end
-    
-    alias_method :completed?, :completed_at?
-    alias_method :failed?,    :failed_at?
   end
 end
