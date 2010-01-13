@@ -5,15 +5,15 @@ module Navvy
     # Start the worker.
     
     def self.start
-      puts '*** Starting ***'
-      trap('TERM') { puts '*** Exiting ***'; $exit = true }
-      trap('INT')  { puts '*** Exiting ***'; $exit = true }
+      Navvy::Log.info '*** Starting ***'
+      trap('TERM') { Navvy::Log.info '*** Exiting ***'; $exit = true }
+      trap('INT')  { Navvy::Log.info '*** Exiting ***'; $exit = true }
            
       loop do
         fetch_and_run_jobs
         
         if $exit
-          puts '*** Cleaning up ***'
+          Navvy::Log.info '*** Cleaning up ***'
           Navvy::Job.cleanup
           break
         end
@@ -26,7 +26,7 @@ module Navvy
     
     def self.fetch_and_run_jobs
       Job.next.each do |job|
-        puts '*'
+        Navvy::Log.info '*'
         job.run
       end
     end

@@ -52,7 +52,7 @@ module Navvy
 
     ##
     # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
-    # false it'll delete every completed job, if it's a timestamp it'll only 
+    # false it'll delete every completed job, if it's a timestamp it'll only
     # delete completed jobs that have passed their keeptime.
     #
     # @return [true, false] delete_all the result of the delete_all call

@@ -16,3 +16,11 @@ class Cow
     raise 'this method is broken'
   end
 end
+
+class RailsLogger
+  def self.info(text)
+    puts(text)
+  end
+end
+
+RAILS_DEFAULT_LOGGER = RailsLogger

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-01-07}
+  s.date = %q{2010-01-13}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -23,12 +23,17 @@ Gem::Specification.new do |s|
      "README.textile",
      "Rakefile",
      "VERSION",
-     "lib/job/mongo_mapper.rb",
      "lib/navvy.rb",
+     "lib/navvy/job.rb",
+     "lib/navvy/job/mongo_mapper.rb",
+     "lib/navvy/log.rb",
+     "lib/navvy/worker.rb",
      "navvy.gemspec",
      "spec/job/mongo_mapper_spec.rb",
+     "spec/log_spec.rb",
      "spec/setup/mongo_mapper.rb",
-     "spec/spec_helper.rb"
+     "spec/spec_helper.rb",
+     "spec/worker_spec.rb"
   ]
   s.homepage = %q{http://github.com/jeffkreeftmeijer/navvy}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -37,8 +42,10 @@ Gem::Specification.new do |s|
   s.summary = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.test_files = [
     "spec/job/mongo_mapper_spec.rb",
+     "spec/log_spec.rb",
      "spec/setup/mongo_mapper.rb",
-     "spec/spec_helper.rb"
+     "spec/spec_helper.rb",
+     "spec/worker_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
