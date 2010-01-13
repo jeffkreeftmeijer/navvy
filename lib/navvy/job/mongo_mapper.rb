@@ -9,7 +9,9 @@ module Navvy
     key :method,        Symbol
     key :arguments,     Array
     key :exception,     String
+    key :created_at,    Time
     key :run_at,        Time
+    key :started_at,    Time
     key :completed_at,  Time
     key :failed_at,     Time
 
@@ -24,10 +26,11 @@ module Navvy
 
     def self.enqueue(object, method, *args)
       create(
-        :object =>    object.name,
-        :method =>    method.to_sym,
-        :run_at =>    Time.now,
-        :arguments => args
+        :object =>      object.name,
+        :method =>      method.to_sym,
+        :arguments =>   args,
+        :run_at =>      Time.now,
+        :created_at =>  Time.now
       )
     end
 
@@ -84,6 +87,7 @@ module Navvy
 
     def run
       begin
+        update_attributes(:started_at => Time.now)
         result = object.constantize.send(method)
         Navvy::Job.keep? ? completed : destroy
         result

@@ -33,7 +33,14 @@ describe 'Navvy::Job' do
       job = Navvy::Job.first
       job.arguments.should == [true, false]
     end
-
+    
+    it 'should set the created_at date' do
+      Navvy::Job.enqueue(Cow, :speak, true, false)
+      job = Navvy::Job.first
+      job.created_at.should be_instance_of Time
+      job.created_at.should <= Time.now
+    end
+        
     it 'should set the run_at date' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
       job = Navvy::Job.first
@@ -137,7 +144,8 @@ describe 'Navvy::Job' do
             jobs = Navvy::Job.next
             jobs.first.run
             Navvy::Job.count.should == 1
-            jobs.first.completed_at.should_not be_nil
+            jobs.first.started_at.should be_instance_of Time
+            jobs.first.completed_at.should be_instance_of Time
           end
         end
         
@@ -161,6 +169,7 @@ describe 'Navvy::Job' do
         jobs.first.run
         Navvy::Job.count.should == 1
         jobs.first.exception.should == 'this method is broken'
+        jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time
       end
     end
