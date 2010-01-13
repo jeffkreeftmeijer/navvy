@@ -8,6 +8,7 @@ module Navvy
     key :object,        String
     key :method,        Symbol
     key :arguments,     Array
+    key :return,        String
     key :exception,     String
     key :created_at,    Time
     key :run_at,        Time
@@ -99,19 +100,23 @@ module Navvy
     end
     
     ##
-    # Mark the job as completed. Will set completed_at to the current time.
+    # Mark the job as completed. Will set completed_at to the current time and 
+    # optionally add the return value if provided.
+    #
+    # @param [String] return_value the return value you want to store.
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
     
-    def completed
+    def completed(return_value = nil)
       update_attributes({
-        :completed_at => Time.now
+        :completed_at =>  Time.now,
+        :return =>        return_value
       })
     end
     
     ##
-    # Mark the job as failed. Will set failed_at to the current time. And 
+    # Mark the job as failed. Will set failed_at to the current time and 
     # optionally add the exception message if provided.
     #
     # @param [String] exception the exception message you want to store.

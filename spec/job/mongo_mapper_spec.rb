@@ -206,6 +206,12 @@ describe 'Navvy::Job' do
       jobs.first.completed
       jobs.first.completed_at.should_not be_nil
     end
+    
+    it 'should set the return if provided' do
+      jobs = Navvy::Job.next
+      jobs.first.completed('woo!')
+      jobs.first.return.should == 'woo!'
+    end
   end
 
   describe '#failed' do
