@@ -51,7 +51,13 @@ describe 'Navvy::Job' do
 
   describe '.next' do
     before(:each) do
-      Navvy::Job.delete_all
+      Navvy::Job.delete_all  
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method =>      :last,
+        :created_at =>  Time.now + 1.day,
+        :run_at =>        Time.now
+      )
       Navvy::Job.create(
         :object =>        'Cow',
         :method =>        :break,
@@ -68,7 +74,7 @@ describe 'Navvy::Job' do
         :object =>  'Cow',
         :method =>  :tomorrow,
         :run_at =>  Time.now + 1.day
-      )
+      )      
       120.times do
         Navvy::Job.enqueue(Cow, :speak)
       end

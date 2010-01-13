@@ -50,7 +50,8 @@ module Navvy
         :failed_at =>     nil,
         :completed_at =>  nil,
         :run_at =>        {'$lte', Time.now},
-        :limit =>         limit
+        :limit =>         limit,
+        :order =>         'created_at'
       )
     end
 
