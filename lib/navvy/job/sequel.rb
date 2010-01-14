@@ -64,15 +64,6 @@ module Navvy
         '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
         Time.now
       ).order(:created_at).first(limit)
-
-      #all(
-      #  :conditions =>    [
-      #    '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
-      #    Time.now
-      #  ],
-      #  :limit =>         limit,
-      #  :order =>         'created_at'
-      #)
     end
 
     ##
@@ -84,15 +75,8 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        #delete_all([
-        #  '`completed_at` <= ?',
-        #  keep.ago
-        #])
         dataset.filter('`completed_at` <= ?', (Time.now - keep)).delete
       else
-        #delete_all(
-        #  '`completed_at` IS NOT NULL'
-        #) unless keep?
         dataset.filter('`completed_at` IS NOT NULL').delete unless keep?
       end
     end
