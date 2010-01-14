@@ -256,7 +256,7 @@ describe 'Navvy::Job' do
         :completed_at =>  Time.now
       )
 
-      job.duration.should == 2.seconds
+      job.duration.should >= 2.seconds
     end
 
     it 'should return a duration if started_at and failed_at are set' do
@@ -265,7 +265,7 @@ describe 'Navvy::Job' do
         :failed_at =>  Time.now
       )
 
-      job.duration.should == 3.seconds
+      job.duration.should >= 3.seconds
     end
 
     it 'should return 0 if only started_at is set' do
