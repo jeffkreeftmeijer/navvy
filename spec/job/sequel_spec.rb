@@ -24,13 +24,13 @@ describe 'Navvy::Job' do
 
     it 'should turn the method into a symbol' do
       Navvy::Job.enqueue(Cow, 'speak')
-      job = Navvy::Job.dataset.first
+      job = Navvy::Job.first
       job.method_name.should == 'speak'
     end
 
     it 'should set the arguments' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
-      job = Navvy::Job.dataset.first
+      job = Navvy::Job.first
       YAML.load(job.arguments).should == [true, false]
     end
 
@@ -260,7 +260,6 @@ describe 'Navvy::Job' do
         :started_at =>    (Time.now - 2),
         :completed_at =>  Time.now
       )
-  
       job.duration.should >= 2
     end
     

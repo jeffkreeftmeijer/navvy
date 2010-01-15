@@ -39,14 +39,13 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method, *args)
-      dataset.insert(
+      create(
         :object =>      object.name,
         :method_name => method.to_s,
         :arguments =>   YAML::dump(args),
         :run_at =>      Time.now,
         :created_at =>  Time.now
       )
-      dataset.order(:created_at).last()
     end
 
     ##
@@ -61,7 +60,7 @@ module Navvy
     # jobs were found.
 
     def self.next(limit = self.limit)
-      dataset.filter(
+      filter(
         '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
         Time.now
       ).order(:created_at).first(limit)
@@ -76,9 +75,9 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        dataset.filter('`completed_at` <= ?', (Time.now - keep)).delete
+        filter('`completed_at` <= ?', (Time.now - keep)).delete
       else
-        dataset.filter('`completed_at` IS NOT NULL').delete unless keep?
+        filter('`completed_at` IS NOT NULL').delete unless keep?
       end
     end
     
