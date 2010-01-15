@@ -1,8 +1,8 @@
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe 'Navvy::Job' do
   before do
-    require File.expand_path(File.dirname(__FILE__) + '/../../setup/sequel/sequel')
+    require File.expand_path(File.dirname(__FILE__) + '/../setup/sequel')
   end
 
   describe '.enqueue' do

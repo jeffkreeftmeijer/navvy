@@ -23,10 +23,20 @@ rescue LoadError
 end
 
 require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/*/*_spec.rb']
-  spec.spec_files << FileList['spec/*_spec.rb']
+Spec::Rake::SpecTask.new(:spec => ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel'])
+
+namespace :spec do
+  Spec::Rake::SpecTask.new(:active_record) do |spec|
+    spec.spec_files = FileList['spec/job/active_record_spec.rb', 'spec/*_spec.rb']
+  end
+  
+  Spec::Rake::SpecTask.new(:mongo_mapper) do |spec|
+    spec.spec_files = FileList['spec/job/mongo_mapper_spec.rb', 'spec/*_spec.rb']
+  end
+  
+  Spec::Rake::SpecTask.new(:sequel) do |spec|
+    spec.spec_files = FileList['spec/job/sequel_spec.rb', 'spec/*_spec.rb']
+  end
 end
 
 Spec::Rake::SpecTask.new(:rcov) do |spec|
@@ -35,13 +45,7 @@ Spec::Rake::SpecTask.new(:rcov) do |spec|
   spec.rcov = true
 end
 
-Spec::Rake::SpecTask.new(:spec_sequel) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/sequel_spec.rb']
-end
-
 task :spec => :check_dependencies
-
 task :default => :spec
 
 begin
