@@ -46,6 +46,7 @@ module Navvy
         :run_at =>      Time.now,
         :created_at =>  Time.now
       )
+      dataset.order(:created_at).last()
     end
 
     ##

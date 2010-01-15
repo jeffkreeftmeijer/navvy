@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../lib/navvy/job/active_record')
+require 'rubygems'
 require 'yaml'
 
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => '/tmp/navvy_test.sqlite')

@@ -47,6 +47,11 @@ describe 'Navvy::Job' do
       job.run_at.should be_instance_of Time
       job.run_at.should <= Time.now
     end
+    
+    it 'should return the enqueued job' do
+      Navvy::Job.enqueue(Cow, :speak, true, false).
+        should be_instance_of Navvy::Job
+    end
   end
 
   describe '.next' do
