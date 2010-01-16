@@ -7,7 +7,7 @@ describe 'Navvy::Job' do
 
   describe '.enqueue' do
     before(:each) do
-      Navvy::Job.dataset.delete
+      Navvy::Job.delete
     end
 
     it 'should enqueue a job' do
@@ -56,7 +56,7 @@ describe 'Navvy::Job' do
 
   describe '.next' do
     before(:each) do
-      Navvy::Job.dataset.delete
+      Navvy::Job.delete
       Navvy::Job.insert(
         :object =>      'Cow',
         :method_name =>      :last.to_s,
@@ -106,7 +106,7 @@ describe 'Navvy::Job' do
   
   describe '.cleanup' do
     before(:each) do
-      Navvy::Job.dataset.delete
+      Navvy::Job.delete
       Navvy::Job.create(
         :object =>      'Cow',
         :method_name =>      :speak.to_s,
@@ -142,9 +142,17 @@ describe 'Navvy::Job' do
   end
   
   describe '#run' do
+    
+    it 'should pass the arguments' do
+      Navvy::Job.delete
+      job = Navvy::Job.enqueue(Cow, :name, 'Betsy')
+      Cow.should_receive(:name).with('Betsy')
+      job.run
+    end
+    
     describe 'when everything goes well' do
       before(:each) do
-        Navvy::Job.dataset.delete
+        Navvy::Job.delete
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.keep = false
       end
@@ -185,7 +193,7 @@ describe 'Navvy::Job' do
   
     describe 'when a job fails' do
       before(:each) do
-        Navvy::Job.dataset.delete
+        Navvy::Job.delete
         Navvy::Job.enqueue(Cow, :broken)
       end
   
@@ -202,7 +210,7 @@ describe 'Navvy::Job' do
   
   describe '#completed' do
     before(:each) do
-      Navvy::Job.dataset.delete
+      Navvy::Job.delete
       Navvy::Job.enqueue(Cow, :speak)
     end
   
@@ -221,7 +229,7 @@ describe 'Navvy::Job' do
   
   describe '#failed' do
     before(:each) do
-      Navvy::Job.dataset.delete
+      Navvy::Job.delete
       Navvy::Job.enqueue(Cow, :speak)
     end
   

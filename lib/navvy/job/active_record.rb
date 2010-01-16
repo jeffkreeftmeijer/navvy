@@ -109,7 +109,7 @@ module Navvy
         if args.empty?
           result = object.constantize.send(method_name)
         else
-          result = object.constantize.send(method_name, args.join(', '))
+          result = object.constantize.send(method_name, *args)
         end        
         Navvy::Job.keep? ? completed : destroy
         result

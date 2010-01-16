@@ -98,7 +98,7 @@ module Navvy
     def run
       begin
         update(:started_at => Time.now)
-        result = Kernel.const_get(object).send(method_name)
+        result = Kernel.const_get(object).send(method_name, *args)
         Navvy::Job.keep? ? completed : destroy
         result
       rescue Exception => exception
