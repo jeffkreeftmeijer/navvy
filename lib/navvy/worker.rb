@@ -25,12 +25,11 @@ module Navvy
     # Fetch jobs and run them.
 
     def self.fetch_and_run_jobs
-
       Job.next.each do |job|
-        job.run
+        result = job.run
         Navvy::Log.info(
           "* #{job.object}.#{job.method}" <<
-          "(#{job.args.join(', ')}) => #{(job.return || job.exception).to_s}",
+          "(#{job.args.join(', ')}) => #{(job.exception || result).to_s}",
           job.failed? ? 31 : 32
         )
       end
