@@ -142,13 +142,21 @@ describe 'Navvy::Job' do
   end
   
   describe '#run' do
+    
+    it 'should pass the arguments' do
+      Navvy::Job.delete_all
+      job = Navvy::Job.enqueue(Cow, :name, 'Betsy')
+      Cow.should_receive(:name).with('Betsy')
+      job.run
+    end
+    
     describe 'when everything goes well' do
       before(:each) do
         Navvy::Job.delete_all
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.keep = false
       end
-  
+      
       it 'should run the job and delete it' do
         jobs = Navvy::Job.next
         jobs.first.run.should == 'moo'

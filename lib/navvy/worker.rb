@@ -28,7 +28,7 @@ module Navvy
       Job.next.each do |job|
         result = job.run
         Navvy::Log.info(
-          "* #{job.object}.#{job.method}" <<
+          # "* #{job.object}.#{job.method}" <<
           "(#{job.args.join(', ')}) => #{(job.exception || result).to_s}",
           job.failed? ? 31 : 32
         )

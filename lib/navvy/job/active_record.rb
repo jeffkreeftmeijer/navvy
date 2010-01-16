@@ -106,7 +106,11 @@ module Navvy
     def run
       begin
         update_attributes(:started_at => Time.now)
-        result = object.constantize.send(method)
+        if args.empty?
+          result = object.constantize.send(method)
+        else
+          result = object.constantize.send(method, args.join(', '))
+        end        
         Navvy::Job.keep? ? completed : destroy
         result
       rescue Exception => exception

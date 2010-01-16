@@ -179,7 +179,7 @@ module Navvy
     # @return [array] arguments
     
     def args
-      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+      arguments.first.is_a?(Array) ? arguments : YAML.load(arguments)
     end
     
     alias_method :completed?, :completed_at?
