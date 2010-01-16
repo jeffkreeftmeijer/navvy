@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
      "lib/navvy/job/mongo_mapper.rb",
      "lib/navvy/job/sequel.rb",
      "lib/navvy/log.rb",
+     "lib/navvy/tasks.rb",
      "lib/navvy/worker.rb",
      "navvy.gemspec",
      "spec/job/active_record_spec.rb",

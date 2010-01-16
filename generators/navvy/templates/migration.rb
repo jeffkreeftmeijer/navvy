@@ -1,16 +1,16 @@
-class CreateDelayedJobs < ActiveRecord::Migration
+class CreateJobs < ActiveRecord::Migration
   def self.up
     create_table :jobs, :force => true do |t|
-      table.string  :object
-      table.string  :method
-      table.text    :arguments
-      table.string  :return
-      table.string  :exception
-      table.time    :created_at
-      table.time    :run_at
-      table.time    :started_at
-      table.time    :completed_at
-      table.time    :failed_at
+      t.string  :object
+      t.string  :method
+      t.text    :arguments
+      t.string  :return
+      t.string  :exception
+      t.time    :created_at
+      t.time    :run_at
+      t.time    :started_at
+      t.time    :completed_at
+      t.time    :failed_at
     end
   end
  
