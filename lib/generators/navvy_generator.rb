@@ -5,12 +5,10 @@ class NavvyGenerator < Rails::Generators::Base
     File.join(File.dirname(__FILE__), '..', '..', 'generators', 'navvy', 'templates')
   end
   
-  
   def install_navvy
     copy_file(
       'migration.rb',
       'db/migrate/create_navvy_table.rb'
     )
   end
-  
 end
