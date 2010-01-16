@@ -23,6 +23,8 @@ Gem::Specification.new do |s|
      "README.textile",
      "Rakefile",
      "VERSION",
+     "generators/navvy/navvy_generator.rb",
+     "generators/navvy/templates/migration.rb",
      "lib/navvy.rb",
      "lib/navvy/job/active_record.rb",
      "lib/navvy/job/mongo_mapper.rb",
