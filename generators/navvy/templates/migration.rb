@@ -2,7 +2,7 @@ class CreateJobs < ActiveRecord::Migration
   def self.up
     create_table :jobs, :force => true do |t|
       t.string  :object
-      t.string  :method
+      t.string  :method_name
       t.text    :arguments
       t.string  :return
       t.string  :exception
