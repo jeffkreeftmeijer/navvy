@@ -10,7 +10,6 @@ begin
     gem.email = "jeff@kreeftmeijer.nl"
     gem.homepage = "http://github.com/jeffkreeftmeijer/navvy"
     gem.authors = ["Jeff Kreeftmeijer"]
-    gem.add_dependency "term-ansicolor",                    ">= 1.0.4"
     gem.add_development_dependency "rspec",                 ">= 1.2.9"
     gem.add_development_dependency "yard",                  ">= 0.5.2"
     gem.add_development_dependency "metric_fu",             ">= 1.1.6"

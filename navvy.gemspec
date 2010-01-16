@@ -65,7 +65,6 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<term-ansicolor>, [">= 1.0.4"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0.5.2"])
       s.add_development_dependency(%q<metric_fu>, [">= 1.1.6"])
@@ -74,7 +73,6 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
       s.add_development_dependency(%q<sequel>, [">= 3.8.0"])
     else
-      s.add_dependency(%q<term-ansicolor>, [">= 1.0.4"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0.5.2"])
       s.add_dependency(%q<metric_fu>, [">= 1.1.6"])
@@ -84,7 +82,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<sequel>, [">= 3.8.0"])
     end
   else
-    s.add_dependency(%q<term-ansicolor>, [">= 1.0.4"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0.5.2"])
     s.add_dependency(%q<metric_fu>, [">= 1.1.6"])

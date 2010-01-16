@@ -15,14 +15,16 @@ module Navvy
     # just log once.
     #
     # @param [String] message the message you want to log
+    # @param [Integer] color an optional color code to use in the terminal
+    # output
 
-    def self.info(message)
+    def self.info(message, color = nil)
       if logger.is_a? Array
         logger.each do |logger|
-          write(logger, message)
+          write(logger, message, color)
         end
       else
-        write(logger, message)
+        write(logger, message, color)
       end
     end
     
@@ -32,9 +34,11 @@ module Navvy
     #
     # @param [Symbol] logger the logger you want to use
     # @param [String] message the message you want to log
+    # @param [Integer] color an optional color code to use in the terminal
+    # output
     
-    def self.write(logger, message)
-      puts message unless quiet
+    def self.write(logger, message, color = nil)
+      puts "\e[#{color}m#{message}\e[0m" unless quiet
       case logger
       when :justlogging
         Justlogging.log(message)
