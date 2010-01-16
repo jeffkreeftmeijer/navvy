@@ -40,7 +40,7 @@ module Navvy
 
     def self.enqueue(object, method_name, *args)
       create(
-        :object =>      object.name,
+        :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args,
         :run_at =>      Time.now,
