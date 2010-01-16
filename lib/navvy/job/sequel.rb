@@ -33,15 +33,16 @@ module Navvy
     # Add a job to the job queue.
     #
     # @param [Object] object the object you want to run a method from
-    # @param [Symbol, String] method the name of the method you want to run
+    # @param [Symbol, String] method_name the name of the method you want to 
+    # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
     # @return [true, false]
 
-    def self.enqueue(object, method, *args)
+    def self.enqueue(object, method_name, *args)
       create(
         :object =>      object.name,
-        :method_name => method.to_s,
+        :method_name => method_name.to_s,
         :arguments =>   YAML::dump(args),
         :run_at =>      Time.now,
         :created_at =>  Time.now

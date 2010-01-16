@@ -15,17 +15,17 @@ describe 'Navvy::Job' do
       Navvy::Job.count.should == 1
     end
 
-    it 'should set the object and the method' do
+    it 'should set the object and the method_name' do
       Navvy::Job.enqueue(Cow, :speak)
       job = Navvy::Job.first
       job.object.should == 'Cow'
-      job.method.should == 'speak'
+      job.method_name.should == 'speak'
     end
 
-    it 'should turn the method into a symbol' do
+    it 'should turn the method_name into a symbol' do
       Navvy::Job.enqueue(Cow, 'speak')
       job = Navvy::Job.first
-      job.method.should == 'speak'
+      job.method_name.should == 'speak'
     end
 
     it 'should set the arguments' do
@@ -59,26 +59,26 @@ describe 'Navvy::Job' do
       Navvy::Job.delete_all
       Navvy::Job.create(
         :object =>      'Cow',
-        :method =>      :last,
+        :method_name => :last,
         :created_at =>  Time.now + 1.day,
         :run_at =>        Time.now
       )
       Navvy::Job.create(
         :object =>        'Cow',
-        :method =>        :break,
+        :method_name =>   :break,
         :completed_at =>  Time.now,
         :run_at =>        Time.now
       )
       Navvy::Job.create(
-        :object =>    'Cow',
-        :method =>    :break,
-        :failed_at => Time.now,
-        :run_at =>    Time.now
+        :object =>      'Cow',
+        :method_name => :break,
+        :failed_at =>   Time.now,
+        :run_at =>      Time.now
       )
       Navvy::Job.create(
-        :object =>  'Cow',
-        :method =>  :tomorrow,
-        :run_at =>  Time.now + 1.day
+        :object =>      'Cow',
+        :method_name => :tomorrow,
+        :run_at =>      Time.now + 1.day
       )
       120.times do
         Navvy::Job.enqueue(Cow, :speak)
@@ -90,7 +90,7 @@ describe 'Navvy::Job' do
       jobs.count.should == 100
       jobs.each do |job|
         job.should be_instance_of Navvy::Job
-        job.method.should == 'speak'
+        job.method_name.should == 'speak'
       end
     end
   
@@ -108,18 +108,18 @@ describe 'Navvy::Job' do
     before(:each) do
       Navvy::Job.delete_all
       Navvy::Job.create(
-        :object =>      'Cow',
-        :method =>      :speak,
-        :completed_at => Time.now - 2.days
+        :object =>        'Cow',
+        :method_name =>   :speak,
+        :completed_at =>  Time.now - 2.days
       )
       Navvy::Job.create(
         :object =>        'Cow',
-        :method =>        :speak,
+        :method_name =>   :speak,
         :completed_at =>  Time.now
       )
       Navvy::Job.create(
-        :object =>        'Cow',
-        :method =>        :speak
+        :object =>      'Cow',
+        :method_name => :speak
       )
     end
   

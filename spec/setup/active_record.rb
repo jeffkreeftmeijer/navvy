@@ -7,7 +7,7 @@ ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => '/tm
 ActiveRecord::Schema.define do
   create_table :jobs, :force => true do |table|
     table.string  :object
-    table.string  :method
+    table.string  :method_name
     table.text    :arguments
     table.string  :return
     table.string  :exception

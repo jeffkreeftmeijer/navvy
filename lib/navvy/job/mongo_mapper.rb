@@ -10,7 +10,7 @@ module Navvy
     end
 
     key :object,        String
-    key :method,        Symbol
+    key :method_name,   Symbol
     key :arguments,     Array
     key :return,        String
     key :exception,     String
@@ -44,15 +44,16 @@ module Navvy
     # Add a job to the job queue.
     #
     # @param [Object] object the object you want to run a method from
-    # @param [Symbol, String] method the name of the method you want to run
+    # @param [Symbol, String] method_name the name of the method you want to 
+    # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
     # @return [true, false]
 
-    def self.enqueue(object, method, *args)
+    def self.enqueue(object, method_name, *args)
       create(
         :object =>      object.name,
-        :method =>      method.to_sym,
+        :method_name => method_name.to_sym,
         :arguments =>   args,
         :run_at =>      Time.now,
         :created_at =>  Time.now
@@ -116,9 +117,9 @@ module Navvy
       begin
         update_attributes(:started_at => Time.now)
         if args.empty?
-          result = object.constantize.send(method)
+          result = object.constantize.send(method_name)
         else
-          result = object.constantize.send(method, args.join(', '))
+          result = object.constantize.send(method_name, args.join(', '))
         end
         Navvy::Job.keep? ? completed : destroy
         result
