@@ -175,5 +175,6 @@ module Navvy
     
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
+    alias_method :args,       :arguments
   end
 end

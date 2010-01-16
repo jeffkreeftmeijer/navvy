@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'active_record'
+require 'yaml'
 
 module Navvy
   class Job < ActiveRecord::Base
@@ -179,6 +180,15 @@ module Navvy
     
     def failed_at?
       !failed_at.nil?
+    end
+    
+    ##
+    # Get the job arguments as an array
+    #
+    # @return [array] arguments
+    
+    def args
+      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
     end
     
     alias_method :completed?, :completed_at?

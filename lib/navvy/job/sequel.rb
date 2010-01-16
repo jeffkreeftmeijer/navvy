@@ -173,6 +173,15 @@ module Navvy
       !failed_at.nil?
     end
     
+    ##
+    # Get the job arguments as an array
+    #
+    # @return [array] arguments
+    
+    def args
+      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+    end
+    
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
   end

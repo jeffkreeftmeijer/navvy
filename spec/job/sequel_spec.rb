@@ -280,4 +280,12 @@ describe 'Navvy::Job' do
       job.duration.should == 0
     end
   end
+  
+  describe '#args' do
+    it 'should return an array of arguments' do
+      job = Navvy::Job.enqueue(Cow, :speak, true, false)
+      job.args.should be_instance_of Array
+      job.args.count.should == 2
+    end
+  end
 end
