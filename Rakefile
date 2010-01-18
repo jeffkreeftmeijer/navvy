@@ -24,17 +24,22 @@ rescue LoadError
 end
 
 require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec => ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel'])
+
+task :spec do
+  ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel'].each do |spec|
+    Rake::Task[spec].invoke
+  end
+end
 
 namespace :spec do
   Spec::Rake::SpecTask.new(:active_record) do |spec|
     spec.spec_files = FileList['spec/job/active_record_spec.rb', 'spec/*_spec.rb']
   end
-  
+
   Spec::Rake::SpecTask.new(:mongo_mapper) do |spec|
     spec.spec_files = FileList['spec/job/mongo_mapper_spec.rb', 'spec/*_spec.rb']
   end
-  
+
   Spec::Rake::SpecTask.new(:sequel) do |spec|
     spec.spec_files = FileList['spec/job/sequel_spec.rb', 'spec/*_spec.rb']
   end
