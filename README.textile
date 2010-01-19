@@ -1,6 +1,6 @@
 h1. Navvy
 
-Navvy is a simple background job processor inspired by "delayed_job":http://github.com/tobi/delayed_job, but aiming for database agnosticism.
+Navvy is a simple background job processor inspired by "delayed_job":http://github.com/tobi/delayed_job, but aiming for database agnosticism. Currently Navvy supports ActiveRecord, MongoMapper and Sequel but it's extremely easy to write an adapter for your favorite ORM. Also, It completely supports Rails Edge.
 
 ??“Navvy is a shorter form of navigator (UK) or navigational engineer (USA) and is particularly applied to describe the manual labourers working on major civil engineering projects. The term was coined in the late 18th century in Britain when numerous canals were being built, which were also sometimes known as "navigations". Canal navvies typically worked with shovels, pickaxes and barrows.”?? - "Wikipedia":http://en.wikipedia.org/wiki/Navvy
 
@@ -10,7 +10,7 @@ There's an "Installation Guide":http://wiki.github.com/jeffkreeftmeijer/navvy/in
 
 h2. Contributing
 
-Found an issues? Have a great idea? Want to help? Great! Create an issue "issue":http://github.com/jeffkreeftmeijer/navvy/issues for it, or even better; "fork the project":http://github.com/jeffkreeftmeijer/navvy/fork. Pull requests are always welcome. :)
+Found any issues? Have a great idea? Want to help? Great! Create an issue "issue":http://github.com/jeffkreeftmeijer/navvy/issues for it, or even better; "fork the project":http://github.com/jeffkreeftmeijer/navvy/fork. Pull requests are always welcome. :)
 
 h2. License
 
