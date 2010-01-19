@@ -1,12 +1,14 @@
 module Navvy
-  class Log
+  class Log  
     class << self
       attr_writer :logger
       attr_accessor :quiet
     end
+    
+    class LoggerNotFound < StandardError; end
 
     def self.logger
-      @logger || :rails
+      @logger
     end
 
     ##
@@ -41,8 +43,16 @@ module Navvy
       puts "\e[#{color}m#{message}\e[0m" unless quiet
       case logger
       when :justlogging
-        Justlogging.log(message)
-      else
+        raise(
+          LoggerNotFound,
+          'JustLogging could not be found. No logs were created.'
+        ) unless defined? Justlogging.log
+        Justlogging.log(message)  
+      when :rails
+        raise(
+          LoggerNotFound,
+          'RAILS_DEFAULT_LOGGER could not be found. No logs were created.'
+        ) unless defined? RAILS_DEFAULT_LOGGER.info
         RAILS_DEFAULT_LOGGER.info(message)
       end
     end

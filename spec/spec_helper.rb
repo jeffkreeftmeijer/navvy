@@ -17,15 +17,4 @@ class Cow
   end
 end
 
-class RailsLogger
-  def self.info(text)
-  end
-end
-
-class Justlogging
-  def self.log(text)
-  end
-end
-
-RAILS_DEFAULT_LOGGER = RailsLogger
 Navvy::Log.quiet = true
