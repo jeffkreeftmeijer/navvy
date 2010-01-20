@@ -183,6 +183,17 @@ module Navvy
       arguments.first.is_a?(Array) ? arguments : YAML.load(arguments)
     end
     
+    ##
+    # Get the job status
+    #
+    # @return [:pending, :completed, :failed] status
+    
+    def status
+      return :completed if completed?
+      return :failed if failed?
+      :pending
+    end
+    
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
   end

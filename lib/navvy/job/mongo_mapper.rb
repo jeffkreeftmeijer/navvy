@@ -178,6 +178,17 @@ module Navvy
       ran? ? (completed_at || failed_at) - started_at : 0
     end
     
+    ##
+    # Get the job status
+    #
+    # @return [:pending, :completed, :failed] status
+    
+    def status
+      return :completed if completed?
+      return :failed if failed?
+      :pending
+    end
+    
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
     alias_method :args,       :arguments
