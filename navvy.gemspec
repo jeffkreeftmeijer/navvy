@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-01-19}
+  s.date = %q{2010-01-21}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -68,27 +68,18 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0.5.2"])
-      s.add_development_dependency(%q<metric_fu>, [">= 1.1.6"])
-      s.add_development_dependency(%q<machinist>, [">= 1.0.6"])
       s.add_development_dependency(%q<mongo_mapper>, [">= 0.6.10"])
-      s.add_development_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
       s.add_development_dependency(%q<sequel>, [">= 3.8.0"])
     else
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0.5.2"])
-      s.add_dependency(%q<metric_fu>, [">= 1.1.6"])
-      s.add_dependency(%q<machinist>, [">= 1.0.6"])
       s.add_dependency(%q<mongo_mapper>, [">= 0.6.10"])
-      s.add_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
       s.add_dependency(%q<sequel>, [">= 3.8.0"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0.5.2"])
-    s.add_dependency(%q<metric_fu>, [">= 1.1.6"])
-    s.add_dependency(%q<machinist>, [">= 1.0.6"])
     s.add_dependency(%q<mongo_mapper>, [">= 0.6.10"])
-    s.add_dependency(%q<machinist_mongomapper>, [">= 0.9.7"])
     s.add_dependency(%q<sequel>, [">= 3.8.0"])
   end
 end

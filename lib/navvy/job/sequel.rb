@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'sequel'
-require 'yaml'
 
 module Navvy
   class Job < Sequel::Model

@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'sequel'
-require 'yaml'
 
 Sequel.sqlite('/tmp/navvy_test_s.sqlite')
 
