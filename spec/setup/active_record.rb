@@ -5,15 +5,15 @@ ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => '/tm
 
 ActiveRecord::Schema.define do
   create_table :jobs, :force => true do |table|
-    table.string  :object
-    table.string  :method_name
-    table.text    :arguments
-    table.string  :return
-    table.string  :exception
-    table.time    :created_at
-    table.time    :run_at
-    table.time    :started_at
-    table.time    :completed_at
-    table.time    :failed_at
+    table.string    :object
+    table.string    :method_name
+    table.text      :arguments
+    table.string    :return
+    table.string    :exception
+    table.datetime  :created_at
+    table.datetime  :run_at
+    table.datetime  :started_at
+    table.datetime  :completed_at
+    table.datetime  :failed_at
   end
 end
