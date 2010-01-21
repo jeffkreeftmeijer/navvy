@@ -14,12 +14,7 @@ describe Navvy::Log do
       end
       
       it 'should pass the log to RAILS_DEFAULT_LOGGER' do
-        class RailsLogger
-          def self.info(text);end
-        end
-
-        RAILS_DEFAULT_LOGGER = RailsLogger
-        
+        require File.expand_path(File.dirname(__FILE__) + '/setup/rails_default_logger')     
         RAILS_DEFAULT_LOGGER.should_receive(:info).with('123')
         Navvy::Log.info('123')
       end
@@ -35,10 +30,7 @@ describe Navvy::Log do
       end
       
       it 'should pass the log to justlogging' do
-        class Justlogging
-          def self.log(text);end
-        end
-        
+        require File.expand_path(File.dirname(__FILE__) + '/setup/justlogging')
         Justlogging.should_receive(:log).with('123')
         Navvy::Log.info('123')
       end

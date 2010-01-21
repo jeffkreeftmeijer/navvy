@@ -14,6 +14,7 @@ begin
     gem.add_development_dependency "yard",                  ">= 0.5.2"
     gem.add_development_dependency "mongo_mapper",          ">= 0.6.10"
     gem.add_development_dependency "sequel",                ">= 3.8.0"
+    gem.add_development_dependency "sqlite3-ruby",          ">= 1.2.5"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

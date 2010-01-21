@@ -39,7 +39,9 @@ Gem::Specification.new do |s|
      "spec/job/sequel_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
+     "spec/setup/justlogging.rb",
      "spec/setup/mongo_mapper.rb",
+     "spec/setup/rails_default_logger.rb",
      "spec/setup/sequel.rb",
      "spec/spec_helper.rb",
      "spec/worker_spec.rb"
@@ -55,7 +57,9 @@ Gem::Specification.new do |s|
      "spec/job/sequel_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
+     "spec/setup/justlogging.rb",
      "spec/setup/mongo_mapper.rb",
+     "spec/setup/rails_default_logger.rb",
      "spec/setup/sequel.rb",
      "spec/spec_helper.rb",
      "spec/worker_spec.rb"
