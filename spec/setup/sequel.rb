@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sequel'
 
-Sequel.sqlite('/tmp/navvy_test_s.sqlite')
+Sequel.sqlite('/tmp/navvy_test.sqlite')
 
 Sequel::DATABASES[0].create_table!(:jobs) do
     primary_key :id, :type=>Integer
