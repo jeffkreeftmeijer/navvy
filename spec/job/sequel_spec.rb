@@ -39,6 +39,7 @@ describe 'Navvy::Job' do
       job = Navvy::Job.first
       job.created_at.should be_instance_of Time
       job.created_at.should <= Time.now
+      job.created_at.should > Time.now - 10
     end
 
     it 'should set the run_at date' do
@@ -46,6 +47,7 @@ describe 'Navvy::Job' do
       job = Navvy::Job.first
       job.run_at.should be_instance_of Time
       job.run_at.should <= Time.now
+      job.created_at.should > Time.now - 10
     end
     
     it 'should return the enqueued job' do
