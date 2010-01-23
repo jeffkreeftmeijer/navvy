@@ -43,7 +43,7 @@ module Navvy
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
-        :arguments =>   YAML::dump(args),
+        :arguments =>   args.to_yaml,
         :run_at =>      Time.now,
         :created_at =>  Time.now
       )

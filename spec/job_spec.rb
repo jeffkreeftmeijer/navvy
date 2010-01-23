@@ -1,53 +1,49 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe 'Navvy::Job' do
-  before do
-    require File.expand_path(File.dirname(__FILE__) + '/../setup/active_record')
-  end
-
   describe '.enqueue' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
     end
 
     it 'should enqueue a job' do
       Navvy::Job.enqueue(Cow, :speak)
-      Navvy::Job.count.should == 1
+      job_count.should == 1
     end
 
     it 'should set the object and the method_name' do
       Navvy::Job.enqueue(Cow, :speak)
-      job = Navvy::Job.first
+      job = first_job
       job.object.should == 'Cow'
-      job.method_name.should == 'speak'
+      job.method_name.to_s.should == 'speak'
     end
 
     it 'should turn the method_name into a symbol' do
       Navvy::Job.enqueue(Cow, 'speak')
-      job = Navvy::Job.first
-      job.method_name.should == 'speak'
+      job = first_job
+      job.method_name.to_s.should == 'speak'
     end
 
     it 'should set the arguments' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
-      job = Navvy::Job.first
-      YAML.load(job.arguments).should == [true, false]
+      job = first_job
+      job.args.should == [true, false]
     end
 
     it 'should set the created_at date' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
-      job = Navvy::Job.first
+      job = first_job
       job.created_at.should be_instance_of Time
       job.created_at.should <= Time.now
-      job.created_at.should > 10.seconds.ago
+      job.created_at.should > Time.now - 10
     end
 
     it 'should set the run_at date' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
-      job = Navvy::Job.first
+      job = first_job
       job.run_at.should be_instance_of Time
       job.run_at.should <= Time.now
-      job.created_at.should > 10.seconds.ago
+      job.created_at.should > Time.now - 10
     end
 
     it 'should return the enqueued job' do
@@ -58,11 +54,11 @@ describe 'Navvy::Job' do
 
   describe '.next' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
       Navvy::Job.create(
         :object =>      'Cow',
         :method_name => :last,
-        :created_at =>  Time.now + 1.day,
+        :created_at =>  Time.now + (60 * 60),
         :run_at =>        Time.now
       )
       Navvy::Job.create(
@@ -80,7 +76,7 @@ describe 'Navvy::Job' do
       Navvy::Job.create(
         :object =>      'Cow',
         :method_name => :tomorrow,
-        :run_at =>      Time.now + 1.day
+        :run_at =>      Time.now + (60 * 60)
       )
       120.times do
         Navvy::Job.enqueue(Cow, :speak)
@@ -92,7 +88,7 @@ describe 'Navvy::Job' do
       jobs.count.should == 100
       jobs.each do |job|
         job.should be_instance_of Navvy::Job
-        job.method_name.should == 'speak'
+        job.method_name.to_s.should == 'speak'
       end
     end
 
@@ -108,11 +104,11 @@ describe 'Navvy::Job' do
 
   describe '.cleanup' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
       Navvy::Job.create(
         :object =>        'Cow',
         :method_name =>   :speak,
-        :completed_at =>  Time.now - 2.days
+        :completed_at =>  Time.now - (2 * 60 * 60)
       )
       Navvy::Job.create(
         :object =>        'Cow',
@@ -127,26 +123,25 @@ describe 'Navvy::Job' do
 
     it 'should delete all complete jobs when "keep" is false' do
       Navvy::Job.cleanup
-      Navvy::Job.count.should == 1
+      job_count.should == 1
     end
 
     it 'should not delete any complete jobs when "keep" is true' do
       Navvy::Job.keep = true
       Navvy::Job.cleanup
-      Navvy::Job.count.should == 3
+      job_count.should == 3
     end
 
     it 'should delete all complete jobs where "keep" has passed' do
-      Navvy::Job.keep = 1.day
+      Navvy::Job.keep = (60 * 60)
       Navvy::Job.cleanup
-      Navvy::Job.count.should == 2
+      job_count.should == 2
     end
   end
 
   describe '#run' do
-
     it 'should pass the arguments' do
-      Navvy::Job.delete_all
+      delete_all_jobs
       job = Navvy::Job.enqueue(Cow, :name, 'Betsy')
       Cow.should_receive(:name).with('Betsy')
       job.run
@@ -154,7 +149,7 @@ describe 'Navvy::Job' do
 
     describe 'when everything goes well' do
       before(:each) do
-        Navvy::Job.delete_all
+        delete_all_jobs
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.keep = false
       end
@@ -162,7 +157,7 @@ describe 'Navvy::Job' do
       it 'should run the job and delete it' do
         jobs = Navvy::Job.next
         jobs.first.run.should == 'moo'
-        Navvy::Job.count.should == 0
+        job_count.should == 0
       end
 
       describe 'when Navvy::Job.keep is set' do
@@ -170,39 +165,39 @@ describe 'Navvy::Job' do
           Navvy::Job.keep = true
           jobs = Navvy::Job.next
           jobs.first.run
-          Navvy::Job.count.should == 1
+          job_count.should == 1
           jobs.first.started_at.should be_instance_of Time
           jobs.first.completed_at.should be_instance_of Time
         end
 
         it 'should mark the job as complete when keep has not passed yer' do
-          Navvy::Job.keep = 1.day
+          Navvy::Job.keep = (60 * 60)
           jobs = Navvy::Job.next
           jobs.first.run
-          Navvy::Job.count.should == 1
+          job_count.should == 1
           jobs.first.started_at.should be_instance_of Time
           jobs.first.completed_at.should be_instance_of Time
         end
 
         it 'should delete the job when the "keep" flag has passed' do
-          Navvy::Job.keep = -1.day
+          Navvy::Job.keep = -(60 * 60)
           jobs = Navvy::Job.next
           jobs.first.run
-          Navvy::Job.count.should == 0
+          job_count.should == 0
         end
       end
     end
 
     describe 'when a job fails' do
       before(:each) do
-        Navvy::Job.delete_all
+        delete_all_jobs
         Navvy::Job.enqueue(Cow, :broken)
       end
 
       it 'should store the exception and current time' do
         jobs = Navvy::Job.next
         jobs.first.run
-        Navvy::Job.count.should == 1
+        job_count.should == 1
         jobs.first.exception.should == 'this method is broken'
         jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time
@@ -212,7 +207,7 @@ describe 'Navvy::Job' do
 
   describe '#completed' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
       Navvy::Job.enqueue(Cow, :speak)
     end
 
@@ -231,7 +226,7 @@ describe 'Navvy::Job' do
 
   describe '#failed' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
       Navvy::Job.enqueue(Cow, :speak)
     end
 
@@ -267,25 +262,25 @@ describe 'Navvy::Job' do
   describe '#duration' do
     it 'should return a duration if started_at and completed_at are set' do
       job = Navvy::Job.create(
-        :started_at =>    2.seconds.ago,
+        :started_at =>    Time.now - 2,
         :completed_at =>  Time.now
       )
 
-      job.duration.should >= 2.seconds
+      job.duration.should >= 2
     end
 
     it 'should return a duration if started_at and failed_at are set' do
       job = Navvy::Job.create(
-        :started_at =>  3.seconds.ago,
+        :started_at =>  Time.now - 3,
         :failed_at =>   Time.now
       )
 
-      job.duration.should >= 3.seconds
+      job.duration.should >= 3
     end
 
     it 'should return 0 if only started_at is set' do
       job = Navvy::Job.create(
-        :started_at => 4.seconds.ago
+        :started_at => Time.now - 4
       )
 
       job.duration.should == 0
@@ -302,7 +297,7 @@ describe 'Navvy::Job' do
 
   describe '#status' do
     before(:each) do
-      Navvy::Job.delete_all
+      delete_all_jobs
     end
 
     it 'should return :pending' do
