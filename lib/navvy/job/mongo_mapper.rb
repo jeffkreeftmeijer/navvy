@@ -11,7 +11,7 @@ module Navvy
 
     key :object,        String
     key :method_name,   Symbol
-    key :arguments,     Array
+    key :arguments,     String
     key :return,        String
     key :exception,     String
     key :created_at,    Time
@@ -51,12 +51,15 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
-      options = args.last.is_a?(Hash) ? args.last.delete(:job_options) : {}
+      options = {}
+      if args.last.is_a?(Hash)
+        options = args.last.delete(:job_options) || {}
+      end
       
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_sym,
-        :arguments =>   args,
+        :arguments =>   args.to_yaml,
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )
@@ -181,6 +184,16 @@ module Navvy
     end
     
     ##
+    # Get the job arguments as an array
+    #
+    # @return [array] arguments
+
+    def args
+      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+    end
+    
+    
+    ##
     # Get the job status
     #
     # @return [:pending, :completed, :failed] status
@@ -193,6 +206,5 @@ module Navvy
     
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
-    alias_method :args,       :arguments
   end
 end

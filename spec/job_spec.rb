@@ -29,6 +29,12 @@ describe 'Navvy::Job' do
       job = first_job
       job.args.should == [true, false]
     end
+    
+    it 'should set the arguments while preserving symbols' do
+      Navvy::Job.enqueue(Cow, :speak, :name => 'Betsy')
+      job = first_job
+      job.args.should == [{:name => 'Betsy'}]
+    end
 
     it 'should set the created_at date' do
       Navvy::Job.enqueue(Cow, :speak)
@@ -50,13 +56,13 @@ describe 'Navvy::Job' do
       Navvy::Job.enqueue(
         Cow,
         :speak,
-        'name' => 'Betsey',
+        'name' => 'Betsy',
         :job_options => {
           :run_at => run_at
         }
       )
       job = first_job
-      job.args.should == [{'name' => 'Betsey'}]
+      job.args.should == [{'name' => 'Betsy'}]
       job.run_at.should be_instance_of Time
       job.run_at.to_i.should == run_at.to_i
     end

@@ -38,7 +38,10 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
-      options = args.last.is_a?(Hash) ? args.last.delete(:job_options) : {}
+      options = {}
+      if args.last.is_a?(Hash)
+        options = args.last.delete(:job_options) || {}
+      end
 
       create(
         :object =>      object.to_s,
