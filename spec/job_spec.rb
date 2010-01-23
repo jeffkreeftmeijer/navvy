@@ -31,7 +31,7 @@ describe 'Navvy::Job' do
     end
 
     it 'should set the created_at date' do
-      Navvy::Job.enqueue(Cow, :speak, true, false)
+      Navvy::Job.enqueue(Cow, :speak)
       job = first_job
       job.created_at.should be_instance_of Time
       job.created_at.should <= Time.now
@@ -39,11 +39,26 @@ describe 'Navvy::Job' do
     end
 
     it 'should set the run_at date' do
-      Navvy::Job.enqueue(Cow, :speak, true, false)
+      Navvy::Job.enqueue(Cow, :speak)
       job = first_job
       job.run_at.should be_instance_of Time
       job.run_at.should <= Time.now
-      job.created_at.should > Time.now - 10
+    end
+
+    it 'should set the run_at date to the provided value' do
+      run_at = Time.now + 10
+      Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        'name' => 'Betsey',
+        :job_options => {
+          :run_at => run_at
+        }
+      )
+      job = first_job
+      job.args.should == [{'name' => 'Betsey'}]
+      job.run_at.should be_instance_of Time
+      job.run_at.to_i.should == run_at.to_i
     end
 
     it 'should return the enqueued job' do

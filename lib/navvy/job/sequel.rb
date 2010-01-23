@@ -40,11 +40,13 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
+      options = args.last.is_a?(Hash) ? args.last.delete(:job_options) : {}
+
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
-        :run_at =>      Time.now,
+        :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )
     end
