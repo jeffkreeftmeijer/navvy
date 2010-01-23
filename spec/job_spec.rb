@@ -29,7 +29,7 @@ describe 'Navvy::Job' do
       job = first_job
       job.args.should == [true, false]
     end
-    
+
     it 'should set the arguments while preserving symbols' do
       Navvy::Job.enqueue(Cow, :speak, :name => 'Betsy')
       job = first_job
@@ -65,6 +65,22 @@ describe 'Navvy::Job' do
       job.args.should == [{'name' => 'Betsy'}]
       job.run_at.should be_instance_of Time
       job.run_at.to_i.should == run_at.to_i
+    end
+
+    it 'should set the priority to 0 when not provided' do
+      Navvy::Job.enqueue(Cow, :speak)
+      first_job.priority.should == 0
+    end
+
+    it 'should set the priority' do
+      Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        :job_options => {
+          :priority => 10
+        }
+      )
+      first_job.priority.should == 10
     end
 
     it 'should return the enqueued job' do

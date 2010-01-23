@@ -49,6 +49,7 @@ module Navvy
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
+        :priority =>    options[:priority] || 0,
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )

@@ -8,6 +8,7 @@ ActiveRecord::Schema.define do
     table.string    :object
     table.string    :method_name
     table.text      :arguments
+    table.integer   :priority, :default => 0
     table.string    :return
     table.string    :exception
     table.datetime  :created_at

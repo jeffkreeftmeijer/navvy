@@ -8,6 +8,7 @@ Sequel::DATABASES[0].create_table!(:jobs) do
   String    :object
   String    :method_name
   String    :arguments, :text => true
+  Integer   :priority, :default => 0
   String    :return
   String    :exception
   DateTime  :created_at

@@ -12,6 +12,7 @@ module Navvy
     key :object,        String
     key :method_name,   Symbol
     key :arguments,     String
+    key :priority,      Integer, :default => 0
     key :return,        String
     key :exception,     String
     key :created_at,    Time
@@ -60,6 +61,7 @@ module Navvy
         :object =>      object.to_s,
         :method_name => method_name.to_sym,
         :arguments =>   args.to_yaml,
+        :priority =>    options[:priority] || 0,
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )

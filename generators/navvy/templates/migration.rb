@@ -4,6 +4,7 @@ class CreateJobs < ActiveRecord::Migration
       t.string    :object
       t.string    :method_name
       t.text      :arguments
+      t.integer   :priority, :default => 0
       t.string    :return
       t.string    :exception
       t.datetime  :created_at
