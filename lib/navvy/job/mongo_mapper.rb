@@ -83,8 +83,8 @@ module Navvy
         :failed_at =>     nil,
         :completed_at =>  nil,
         :run_at =>        {'$lte' => Time.now},
-        :limit =>         limit,
-        :order =>         'created_at'
+        :order =>         'priority desc, created_at asc',
+        :limit =>         limit
       )
     end
 

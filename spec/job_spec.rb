@@ -95,8 +95,8 @@ describe 'Navvy::Job' do
       Navvy::Job.create(
         :object =>      'Cow',
         :method_name => :last,
-        :created_at =>  Time.now + (60 * 60),
-        :run_at =>        Time.now
+        :created_at =>  Time.now + (60),
+        :run_at =>      Time.now
       )
       Navvy::Job.create(
         :object =>        'Cow',
@@ -110,17 +110,15 @@ describe 'Navvy::Job' do
         :failed_at =>   Time.now,
         :run_at =>      Time.now
       )
-      Navvy::Job.create(
-        :object =>      'Cow',
-        :method_name => :tomorrow,
-        :run_at =>      Time.now + (60 * 60)
-      )
       120.times do
         Navvy::Job.enqueue(Cow, :speak)
       end
+      Navvy::Job.enqueue(Cow, :speak, :job_options => {:priority => 5})
+      Navvy::Job.enqueue(Cow, :speak, :job_options => {:run_at => Time.now + 60})
+      Navvy::Job.enqueue(Cow, :speak, :job_options => {:priority => 10})
     end
 
-    it 'should find the next 10 available jobs' do
+    it 'should find the next 100 available jobs' do
       jobs = Navvy::Job.next
       jobs.count.should == 100
       jobs.each do |job|
@@ -128,7 +126,13 @@ describe 'Navvy::Job' do
         job.method_name.to_s.should == 'speak'
       end
     end
-
+    
+    it 'should get the prioritized jobs first' do
+      jobs = Navvy::Job.next
+      jobs[0].priority.should == 10
+      jobs[1].priority.should == 5
+    end
+    
     it 'should find the next 2 available jobs' do
       Navvy::Job.next(2).count.should == 2
     end

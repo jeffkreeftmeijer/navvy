@@ -70,7 +70,7 @@ module Navvy
       filter(
         '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
         Time.now
-      ).order(:created_at).first(limit)
+      ).order(:priority.desc, :created_at).first(limit)
     end
 
     ##

@@ -71,7 +71,7 @@ module Navvy
           Time.now
         ],
         :limit =>         limit,
-        :order =>         'created_at'
+        :order =>         'priority desc, created_at'
       )
     end
 
