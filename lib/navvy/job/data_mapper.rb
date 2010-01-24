@@ -226,10 +226,20 @@ module Navvy
       :pending
     end
 
+    ##
+    # A method for compatibility reasons
+    #
+    # @return [Boolean]
     def self.delete_all
       all.destroy
     end
 
+    ##
+    # 
+    # A method for compatilibity reasons.
+    # Alias of all.length
+    #
+    # @return [Integer]
     def self.count
       all.length
     end
