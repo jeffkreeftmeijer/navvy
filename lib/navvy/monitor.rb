@@ -9,6 +9,7 @@ module Navvy
     set :static,  true
     
     get '/' do
+      @jobs = Job.all(:order => 'priority desc, created_at asc')
       haml :index, :layout => true
     end
   end
