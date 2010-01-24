@@ -24,7 +24,7 @@ end
 require 'spec/rake/spectask'
 
 task :spec do
-  ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel'].each do |spec|
+  ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel', 'spec:data_mapper'].each do |spec|
     Rake::Task[spec].invoke
   end
 end

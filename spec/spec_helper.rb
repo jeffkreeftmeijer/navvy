@@ -10,13 +10,19 @@ end
 def delete_all_jobs
   if defined? Navvy::Job.delete_all
     Navvy::Job.delete_all
+  elsif defined? Navvy::Job.all.destroy
+    Navvy::Job.all.destroy
   else
     Navvy::Job.delete
   end
 end
 
 def job_count
-  Navvy::Job.count
+  if defined? Navvy::Job.count
+    Navvy::Job.count
+  else
+    Navvy::Job.all.length
+  end
 end
 
 def first_job

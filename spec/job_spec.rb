@@ -126,13 +126,13 @@ describe 'Navvy::Job' do
         job.method_name.to_s.should == 'speak'
       end
     end
-    
+
     it 'should get the prioritized jobs first' do
       jobs = Navvy::Job.next
       jobs[0].priority.should == 10
       jobs[1].priority.should == 5
     end
-    
+
     it 'should find the next 2 available jobs' do
       Navvy::Job.next(2).count.should == 2
     end
