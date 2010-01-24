@@ -1,0 +1,24 @@
+body{
+  background-color: #ddd;
+  color: #222;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  padding: 10px;
+}
+
+table{
+  width: 100%;
+}
+
+table tr td{
+  background-color: #fff;
+  padding: 10px;
+}
+
+table tr.failed td{
+  background-color: red;
+}
+
+table tr.completed td{
+  background-color: green;
+}
