@@ -75,7 +75,7 @@ module Navvy
       all(
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at =>        {'$lte', Time.now},
+        :run_at =>        {'$lte' => Time.now},
         :limit =>         limit,
         :order =>         'created_at'
       )
