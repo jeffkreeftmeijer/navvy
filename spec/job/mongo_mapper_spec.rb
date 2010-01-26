@@ -299,27 +299,4 @@ describe 'Navvy::Job' do
       job.args.count.should == 2
     end
   end
-  
-  describe '#status' do
-    before(:each) do
-      Navvy::Job.delete_all
-    end
-
-    it 'should return :pending' do
-      job = Navvy::Job.enqueue(Cow, :speak)
-      job.status.should == :pending
-    end
-
-    it 'should return :completed' do
-      job = Navvy::Job.enqueue(Cow, :speak)
-      job.completed
-      job.status.should == :completed
-    end
-
-    it 'should return :failed' do
-      job = Navvy::Job.enqueue(Cow, :speak)
-      job.failed
-      job.status.should == :failed
-    end
-  end
 end
