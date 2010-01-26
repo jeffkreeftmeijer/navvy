@@ -178,8 +178,16 @@ module Navvy
       ran? ? (completed_at || failed_at) - started_at : 0
     end
 
+    ##
+    # Get the job arguments as an array
+    #
+    # @return [array] arguments
+
+    def args
+      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+    end
+
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
-    alias_method :args,       :arguments
   end
 end

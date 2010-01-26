@@ -22,7 +22,7 @@ module Navvy
     property :started_at,    Time
     property :completed_at,  Time
     property :failed_at,     Time
-    
+
     ##
     # Default limit of jobs to be fetched
     #
@@ -47,25 +47,19 @@ module Navvy
     # Add a job to the job queue.
     #
     # @param [Object] object the object you want to run a method from
-    # @param [Symbol, String] method_name the name of the method you want to 
+    # @param [Symbol, String] method_name the name of the method you want to
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
-      options = {}
-      if args.last.is_a?(Hash)
-        options = args.last.delete(:job_options) || {}
-      end
-
       new_job = self.new
       new_job.attributes = {
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
-        :priority =>    options[:priority] || 0,
-        :run_at =>      options[:run_at] || Time.now,
+        :run_at =>      Time.now,
         :created_at =>  Time.now
       }
       new_job.save
@@ -135,49 +129,48 @@ module Navvy
         failed(exception.message)
       end
     end
-    
+
     ##
-    # Mark the job as completed. Will set completed_at to the current time and 
+    # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.
     #
     # @param [String] return_value the return value you want to store.
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
-    
+
     def completed(return_value = nil)
       update(
         :completed_at =>  Time.now,
         :return =>        return_value
       )
     end
-    
+
     ##
-    # Mark the job as failed. Will set failed_at to the current time and 
+    # Mark the job as failed. Will set failed_at to the current time and
     # optionally add the exception message if provided.
     #
     # @param [String] exception the exception message you want to store.
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
-    
+
     def failed(message = nil)
       update(
         :failed_at => Time.now,
         :exception => message
       )
     end
-    
+
     ##
-    # Check if the job has been run. 
+    # Check if the job has been run.
     #
     # @return [true, false] ran
-    
+
     def ran?
       completed? || failed?
     end
 
-    
     ##
     # Check if completed_at is set
     #
@@ -195,16 +188,16 @@ module Navvy
     def failed_at?
       !failed_at.nil?
     end
-    
+
     ##
     # Check how long it took for a job to complete or fail
     #
     # @return [Time, Integer] time the time it took
-    
+
     def duration
       ran? ? (completed_at || failed_at) - started_at : 0
     end
-    
+
     ##
     # Get the job arguments as an array
     #
@@ -212,36 +205,6 @@ module Navvy
 
     def args
       arguments.is_a?(Array) ? arguments : YAML.load(arguments)
-    end
-    
-    
-    ##
-    # Get the job status
-    #
-    # @return [:pending, :completed, :failed] status
-    
-    def status
-      return :completed if completed?
-      return :failed if failed?
-      :pending
-    end
-
-    ##
-    # A method for compatibility reasons
-    #
-    # @return [Boolean]
-    def self.delete_all
-      all.destroy
-    end
-
-    ##
-    # 
-    # A method for compatilibity reasons.
-    # Alias of all.length
-    #
-    # @return [Integer]
-    def self.count
-      all.length
     end
 
     alias_method :completed?, :completed_at?

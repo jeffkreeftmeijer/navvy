@@ -59,7 +59,7 @@ describe 'Navvy::Job' do
         :object =>      'Cow',
         :method_name => :last,
         :created_at =>  Time.now + (60 * 60),
-        :run_at =>        Time.now
+        :run_at =>      Time.now
       )
       Navvy::Job.create(
         :object =>        'Cow',
