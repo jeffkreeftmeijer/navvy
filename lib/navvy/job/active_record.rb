@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'active_record'
-require 'yaml'
 
 module Navvy
   class Job < ActiveRecord::Base
