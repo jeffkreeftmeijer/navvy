@@ -7,6 +7,22 @@ require 'spec/autorun'
 Spec::Runner.configure do |config|
 end
 
+def delete_all_jobs
+  if defined? Navvy::Job.delete_all
+    Navvy::Job.delete_all
+  else
+    Navvy::Job.delete
+  end
+end
+
+def job_count
+  Navvy::Job.count
+end
+
+def first_job
+  Navvy::Job.first
+end
+
 class Cow
   def self.speak
     'moo'

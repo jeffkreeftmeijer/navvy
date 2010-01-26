@@ -31,15 +31,15 @@ end
 
 namespace :spec do
   Spec::Rake::SpecTask.new(:active_record) do |spec|
-    spec.spec_files = FileList['spec/job/active_record_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/active_record.rb', 'spec/*_spec.rb']
   end
 
   Spec::Rake::SpecTask.new(:mongo_mapper) do |spec|
-    spec.spec_files = FileList['spec/job/mongo_mapper_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/mongo_mapper.rb', 'spec/*_spec.rb']
   end
 
   Spec::Rake::SpecTask.new(:sequel) do |spec|
-    spec.spec_files = FileList['spec/job/sequel_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/sequel.rb', 'spec/*_spec.rb']
   end
 end
 
