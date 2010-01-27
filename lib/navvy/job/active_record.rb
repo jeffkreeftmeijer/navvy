@@ -4,17 +4,25 @@ require 'active_record'
 module Navvy
   class Job < ActiveRecord::Base
     class << self
-      attr_writer :limit
-      attr_accessor :keep
+      attr_writer :limit, :keep
     end
 
     ##
-    # Default limit of jobs to be fetched
+    # Default limit of jobs to be fetched.
     #
     # @return [Integer] limit
 
     def self.limit
-      @limit || 100
+      @limit || Navvy.configuration.job_limit
+    end
+    
+    ##
+    # If and how long the jobs should be kept.
+    #
+    # @return [Fixnum, true, false] keep
+
+    def self.keep
+      @keep || Navvy.configuration.keep_jobs
     end
 
     ##

@@ -5,8 +5,7 @@ module Navvy
   class Job
     include MongoMapper::Document
     class << self
-      attr_writer :limit
-      attr_accessor :keep
+      attr_writer :limit, :keep
     end
 
     key :object,        String
@@ -22,13 +21,23 @@ module Navvy
     key :failed_at,     Time
 
     ##
-    # Default limit of jobs to be fetched
+    # Default limit of jobs to be fetched.
     #
     # @return [Integer] limit
 
     def self.limit
-      @limit || 100
+      @limit || Navvy.configuration.job_limit
     end
+    
+    ##
+    # If and how long the jobs should be kept.
+    #
+    # @return [Fixnum, true, false] keep
+
+    def self.keep
+      @keep || Navvy.configuration.keep_jobs
+    end
+
 
     ##
     # Should the job be kept?
