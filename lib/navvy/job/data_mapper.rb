@@ -97,7 +97,7 @@ module Navvy
       all(
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at.lte =>     Time.now,
+        :run_at.lte =>    Time.now,
         :order =>         [ :priority.desc, :created_at.asc ],
         :limit =>         limit
       )
@@ -112,9 +112,9 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        all( :completed_at.lte => (Time.now - keep)).destroy
+        all(:completed_at.lte => (Time.now - keep)).destroy
       else
-        all( :completed_at.not => nil ).destroy unless keep?
+        all(:completed_at.not => nil ).destroy unless keep?
       end
     end
 
@@ -177,7 +177,19 @@ module Navvy
         :exception => message
       )
     end
-
+    
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+    
+    def times_failed
+      self.class.all(
+        :conditions => ["`id` = ? OR `parent_id` = ?", id, id]
+      ).count
+    end
+    
     ##
     # Check if the job has been run.
     #

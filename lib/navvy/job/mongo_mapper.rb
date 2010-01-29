@@ -29,7 +29,7 @@ module Navvy
     def self.limit
       @limit || Navvy.configuration.job_limit
     end
-    
+
     ##
     # If and how long the jobs should be kept.
     #
@@ -62,13 +62,11 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
-#      raise args.to_yaml
-      
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
       end
-      
+
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_sym,
@@ -178,6 +176,18 @@ module Navvy
         :failed_at => Time.now,
         :exception => message
       })
+    end
+
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+
+    def times_failed
+      self.class.count(
+        '$where' => "this._id == '#{id}' || this.parent_id == '#{id}'"
+      )
     end
 
     ##

@@ -296,6 +296,30 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '#times_failed' do
+    before(:each) do
+      delete_all_jobs          
+      @failed_job = Navvy::Job.create(
+        :failed_at => Time.now
+      )
+    end
+
+    it 'should return 1' do
+      @failed_job.times_failed.should == 1
+    end
+
+    it 'should return 3 when having 2 failed children' do
+      2.times do
+        Navvy::Job.create(
+          :failed_at => Time.now,
+          :parent_id => @failed_job.id
+        )
+      end
+
+      @failed_job.times_failed.should == 3
+    end
+  end
+
   describe '#ran?' do
     it 'should return false when failed_at? and completed_at? are false' do
       job = Navvy::Job.create

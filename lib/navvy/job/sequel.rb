@@ -16,7 +16,7 @@ module Navvy
     def self.limit
       @limit || Navvy.configuration.job_limit
     end
-    
+
     ##
     # If and how long the jobs should be kept.
     #
@@ -152,6 +152,18 @@ module Navvy
         :failed_at => Time.now,
         :exception => message
       })
+    end
+
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+
+    def times_failed
+      self.class.filter(
+        "`id` == '#{id}' OR `parent_id` == '#{id}'"
+      ).count
     end
 
     ##
