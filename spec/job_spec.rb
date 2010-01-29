@@ -83,6 +83,18 @@ describe 'Navvy::Job' do
       first_job.priority.should == 10
     end
 
+    it 'should set the parent' do
+      existing_job = Navvy::Job.enqueue(Cow,:speak)
+      job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        :job_options => {
+          :parent_id =>  existing_job.id
+        }
+      )
+      job.parent_id.should == existing_job.id
+    end
+
     it 'should return the enqueued job' do
       Navvy::Job.enqueue(Cow, :speak, true, false).
         should be_instance_of Navvy::Job

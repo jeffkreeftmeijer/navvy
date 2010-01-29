@@ -16,6 +16,7 @@ module Navvy
     property :priority,      Integer, :default => 0
     property :return,        String
     property :exception,     String
+    property :parent_id,     Integer
     property :created_at,    Time
     property :run_at,        Time
     property :started_at,    Time
@@ -30,7 +31,7 @@ module Navvy
     def self.limit
       @limit || Navvy.configuration.job_limit
     end
-    
+
     ##
     # If and how long the jobs should be kept.
     #
@@ -73,6 +74,7 @@ module Navvy
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       }

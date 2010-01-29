@@ -11,6 +11,7 @@ ActiveRecord::Schema.define do
     table.integer   :priority, :default => 0
     table.string    :return
     table.string    :exception
+    table.integer   :parent_id
     table.datetime  :created_at
     table.datetime  :run_at
     table.datetime  :started_at

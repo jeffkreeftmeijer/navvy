@@ -14,6 +14,7 @@ module Navvy
     key :priority,      Integer, :default => 0
     key :return,        String
     key :exception,     String
+    key :parent_id,     ObjectId
     key :created_at,    Time
     key :run_at,        Time
     key :started_at,    Time
@@ -61,16 +62,19 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
+#      raise args.to_yaml
+      
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
       end
-
+      
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_sym,
         :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )

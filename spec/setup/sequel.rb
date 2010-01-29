@@ -11,6 +11,7 @@ Sequel::DATABASES[0].create_table!(:jobs) do
   Integer   :priority, :default => 0
   String    :return
   String    :exception
+  Integer   :parent_id
   DateTime  :created_at
   DateTime  :run_at
   DateTime  :started_at
