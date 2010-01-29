@@ -71,7 +71,7 @@ describe 'Navvy::Job' do
       Navvy::Job.enqueue(Cow, :speak)
       first_job.priority.should == 0
     end
-    
+
     it 'should set the options without messing up the arguments' do
       job = Navvy::Job.enqueue(
         Cow,
@@ -84,7 +84,7 @@ describe 'Navvy::Job' do
       )
       job.args.should == [true, false]
     end
-    
+
     it 'should set the priority' do
       Navvy::Job.enqueue(
         Cow,
@@ -309,9 +309,31 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '#retry' do
+    before(:each) do
+      delete_all_jobs
+    end
+
+    it 'should enqueue a child for the failed job' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, true, false)
+      job = failed_job.retry
+      job.object.should ==            'Cow'
+      job.method_name.to_s.should ==  'speak'
+      job.args.should ==              [true, false]
+      job.parent_id.should ==         failed_job.id
+    end 
+    
+    it 'should handle hashes correctly' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      job = failed_job.retry
+      job.args.should ==      [{'name' => 'Betsy'}]
+      job.parent_id.should == failed_job.id
+    end
+  end
+
   describe '#times_failed' do
     before(:each) do
-      delete_all_jobs          
+      delete_all_jobs
       @failed_job = Navvy::Job.create(
         :failed_at => Time.now
       )

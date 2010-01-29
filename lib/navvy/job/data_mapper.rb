@@ -178,19 +178,33 @@ module Navvy
         :exception => message
       )
     end
-    
+
+    ##
+    # Retry the current job. Will add self to the queue again, giving the clone
+    # a parend_id equal to self.id.
+    #
+    # @return [true, false]
+
+    def retry
+      self.class.enqueue(
+        object,
+        method_name,
+        *(args << {:job_options => {:parent_id => id}})
+      )
+    end
+
     ##
     # Check how many times the job has failed. Will try to find jobs with a
     # parent_id that's the same as self.id and count them
     #
     # @return [Integer] count the amount of times the job has failed
-    
+
     def times_failed
       self.class.all(
         :conditions => ["`id` = ? OR `parent_id` = ?", id, id]
       ).count
     end
-    
+
     ##
     # Check if the job has been run.
     #
