@@ -68,6 +68,18 @@ describe Navvy::Configuration do
       config.sleep_time = 10
     end
     
-    Navvy::Worker.sleep_time == 10
+    Navvy::Worker.sleep_time.should == 10
+  end
+  
+  it 'should have a default max_attempts of 25' do
+    Navvy::Job.max_attempts.should == 25
+  end
+  
+  it 'should set max_attempts to 15' do
+    Navvy.configure do |config|
+      config.max_attempts = 15
+    end                       
+    
+    Navvy::Job.max_attempts.should == 15
   end
 end

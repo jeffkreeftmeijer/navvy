@@ -5,7 +5,7 @@ require 'yaml'
 module Navvy
   class Job < Sequel::Model
     class << self
-      attr_writer :limit, :keep
+      attr_writer :limit, :keep, :max_attempts
     end
 
     ##
@@ -26,6 +26,14 @@ module Navvy
       @keep || Navvy.configuration.keep_jobs
     end
 
+    ##
+    # How often should a job be retried?
+    #
+    # @return [Fixnum] max_attempts
+
+    def self.max_attempts
+      @max_attempts || Navvy.configuration.max_attempts
+    end
 
     ##
     # Should the job be kept?
@@ -150,7 +158,7 @@ module Navvy
     # update_attributes call
 
     def failed(message = nil)
-      self.retry unless times_failed >= 25
+      self.retry unless times_failed >= self.class.max_attempts
       update(
         :failed_at => Time.now,
         :exception => message

@@ -319,6 +319,14 @@ describe 'Navvy::Job' do
       jobs.first.should_not_receive(:retry)
       jobs.first.failed('broken')
     end
+    
+    it 'should not retry when the job has failed 10 times' do
+      Navvy::Job.max_attempts = 10
+      jobs = Navvy::Job.next
+      jobs.first.stub!(:times_failed).and_return 10
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken')
+    end
   end
 
   describe '#retry' do
