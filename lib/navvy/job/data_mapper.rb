@@ -165,7 +165,8 @@ module Navvy
 
     ##
     # Mark the job as failed. Will set failed_at to the current time and
-    # optionally add the exception message if provided.
+    # optionally add the exception message if provided. Also, it will retry
+    # the job unless max_attempts has been reached.
     #
     # @param [String] exception the exception message you want to store.
     #
@@ -173,6 +174,7 @@ module Navvy
     # update_attributes call
 
     def failed(message = nil)
+      self.retry unless times_failed >= 25
       update(
         :failed_at => Time.now,
         :exception => message
@@ -189,7 +191,12 @@ module Navvy
       self.class.enqueue(
         object,
         method_name,
-        *(args << {:job_options => {:parent_id => id}})
+        *(args << {
+          :job_options => {
+            :parent_id => id,
+            :run_at => Time.now + 4 ** times_failed
+          }
+        })
       )
     end
 

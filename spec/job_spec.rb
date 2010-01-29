@@ -263,7 +263,6 @@ describe 'Navvy::Job' do
       it 'should store the exception and current time' do
         jobs = Navvy::Job.next
         jobs.first.run
-        job_count.should == 1
         jobs.first.exception.should == 'this method is broken'
         jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time
@@ -307,6 +306,19 @@ describe 'Navvy::Job' do
       jobs.first.failed('broken')
       jobs.first.exception.should == 'broken'
     end
+
+    it 'should retry' do
+      jobs = Navvy::Job.next
+      jobs.first.should_receive(:retry)
+      jobs.first.failed('broken')
+    end
+
+    it 'should not retry when the job has failed 25 times already' do
+      jobs = Navvy::Job.next
+      jobs.first.stub!(:times_failed).and_return 25
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken')
+    end
   end
 
   describe '#retry' do
@@ -321,13 +333,28 @@ describe 'Navvy::Job' do
       job.method_name.to_s.should ==  'speak'
       job.args.should ==              [true, false]
       job.parent_id.should ==         failed_job.id
-    end 
-    
+    end
+
     it 'should handle hashes correctly' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       job = failed_job.retry
       job.args.should ==      [{'name' => 'Betsy'}]
       job.parent_id.should == failed_job.id
+    end
+
+    it 'should set the run_at date to about 4 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      job = failed_job.retry
+      job.run_at.to_i.should >= (Time.now + 3).to_i
+      job.run_at.to_i.should <= (Time.now + 5).to_i
+    end
+
+    it 'should set the run_at date to about 16 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 2
+      job = failed_job.retry
+      job.run_at.to_i.should >= (Time.now + 15).to_i
+      job.run_at.to_i.should <= (Time.now + 17).to_i
     end
   end
 
