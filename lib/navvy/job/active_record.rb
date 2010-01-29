@@ -188,7 +188,7 @@ module Navvy
         method_name,
         *(args << {
           :job_options => {
-            :parent_id => id,
+            :parent_id => parent_id || id,
             :run_at => Time.now + 4 ** times_failed
           }
         })

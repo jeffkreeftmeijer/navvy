@@ -364,6 +364,12 @@ describe 'Navvy::Job' do
       job.run_at.to_i.should >= (Time.now + 15).to_i
       job.run_at.to_i.should <= (Time.now + 17).to_i
     end
+    
+    it 'should set the parent_id to the master job id' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_child = failed_job.retry
+      failed_child.retry.parent_id.should == failed_job.id
+    end
   end
 
   describe '#times_failed' do
