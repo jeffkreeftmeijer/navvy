@@ -49,6 +49,7 @@ module Navvy
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
+         args.pop if args.last.empty?
       end
 
       create(

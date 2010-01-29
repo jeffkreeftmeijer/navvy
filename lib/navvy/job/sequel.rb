@@ -16,7 +16,7 @@ module Navvy
     def self.limit
       @limit || Navvy.configuration.job_limit
     end
-    
+
     ##
     # If and how long the jobs should be kept.
     #
@@ -52,6 +52,7 @@ module Navvy
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
+        args.pop if args.last.empty?
       end
 
       create(
