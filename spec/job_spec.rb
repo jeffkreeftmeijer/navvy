@@ -71,7 +71,20 @@ describe 'Navvy::Job' do
       Navvy::Job.enqueue(Cow, :speak)
       first_job.priority.should == 0
     end
-
+    
+    it 'should set the options without messing up the arguments' do
+      job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        true,
+        false,
+        :job_options => {
+          :run_at => Time.now
+        }
+      )
+      job.args.should == [true, false]
+    end
+    
     it 'should set the priority' do
       Navvy::Job.enqueue(
         Cow,
