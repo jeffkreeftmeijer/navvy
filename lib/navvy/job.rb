@@ -41,7 +41,31 @@ module Navvy
       return (Time.now + keep) >= Time.now if keep.is_a? Fixnum
       keep
     end
+    
+    ##
+    # Run the job. Will delete the Navvy::Job record and return its return
+    # value if it runs successfully unless Navvy::Job.keep is set. If a job
+    # fails, it'll update the Navvy::Job record to include the exception
+    # message it sent back and set the :failed_at date. Failed jobs never get
+    # deleted.
+    #
+    # @example
+    #   job = Navvy::Job.next # finds the next available job in the queue
+    #   job.run               # runs the job and returns the job's return value
+    #
+    # @return [String] return value of the called method.
 
+    def run
+      begin
+        started
+        result = Kernel.const_get(object).send(method_name, *args)
+        Navvy::Job.keep? ? completed : destroy
+        result
+      rescue Exception => exception
+        failed(exception.message)
+      end
+    end
+    
     ##
     # Retry the current job. Will add self to the queue again, giving the clone
     # a parend_id equal to self.id.
@@ -61,7 +85,7 @@ module Navvy
         })
       )
     end
-
+   
     ##
     # Check if the job has been run.
     #

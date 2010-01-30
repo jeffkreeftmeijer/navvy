@@ -85,35 +85,19 @@ module Navvy
         ) unless keep?
       end
     end
-
+    
     ##
-    # Run the job. Will delete the Navvy::Job record and return its return
-    # value if it runs successfully unless Navvy::Job.keep is set. If a job
-    # fails, it'll update the Navvy::Job record to include the exception
-    # message it sent back and set the :failed_at date. Failed jobs never get
-    # deleted.
+    # Mark the job as started. Will set started_at to the current time.
     #
-    # @example
-    #   job = Navvy::Job.next # finds the next available job in the queue
-    #   job.run               # runs the job and returns the job's return value
-    #
-    # @return [String] return value of the called method.
+    # @return [true, false] update_attributes the result of the
+    # update_attributes call
 
-    def run
-      begin
-        update_attributes(:started_at => Time.now)
-        if args.empty?
-          result = object.constantize.send(method_name)
-        else
-          result = object.constantize.send(method_name, *args)
-        end
-        Navvy::Job.keep? ? completed : destroy
-        result
-      rescue Exception => exception
-        failed(exception.message)
-      end
+    def started
+      update_attributes({
+        :started_at =>  Time.now
+      })
     end
-
+    
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.

@@ -269,6 +269,19 @@ describe 'Navvy::Job' do
       end
     end
   end
+  
+  describe '#started' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.enqueue(Cow, :speak)
+    end
+
+    it 'should update the jobs started_at date' do
+      jobs = Navvy::Job.next
+      jobs.first.started
+      jobs.first.started_at.should_not be_nil
+    end
+  end
 
   describe '#completed' do
     before(:each) do
