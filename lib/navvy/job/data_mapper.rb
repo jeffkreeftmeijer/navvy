@@ -141,7 +141,7 @@ module Navvy
     def times_failed
       i = parent_id || id
       self.class.all(
-        :conditions => ["`id` = ? OR `parent_id` = ?", i, i]
+        :conditions => ["(`id` = ? OR `parent_id` = ?) AND `failed_at` IS NOT NULL", i, i]
       ).count
     end
   end

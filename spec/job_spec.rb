@@ -429,6 +429,19 @@ describe 'Navvy::Job' do
 
       @failed_job.times_failed.should == 3
     end
+    
+     it 'should return 2 when having 1 failed and one pending child' do
+        Navvy::Job.create(
+          :failed_at => Time.now,
+          :parent_id => @failed_job.id
+        )
+        
+        Navvy::Job.create(
+          :parent_id => @failed_job.id
+        )
+        
+        @failed_job.times_failed.should == 2
+      end
 
     it 'should return 2 when having failed and having a failed parent' do
       failed_child =  Navvy::Job.create(
