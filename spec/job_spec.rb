@@ -72,6 +72,19 @@ describe 'Navvy::Job' do
       first_job.priority.should == 0
     end
 
+    it 'should set the options without messing up the arguments' do
+      job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        true,
+        false,
+        :job_options => {
+          :run_at => Time.now
+        }
+      )
+      job.args.should == [true, false]
+    end
+
     it 'should set the priority' do
       Navvy::Job.enqueue(
         Cow,
@@ -81,6 +94,18 @@ describe 'Navvy::Job' do
         }
       )
       first_job.priority.should == 10
+    end
+
+    it 'should set the parent' do
+      existing_job = Navvy::Job.enqueue(Cow,:speak)
+      job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        :job_options => {
+          :parent_id =>  existing_job.id
+        }
+      )
+      job.parent_id.should == existing_job.id
     end
 
     it 'should return the enqueued job' do
@@ -238,11 +263,23 @@ describe 'Navvy::Job' do
       it 'should store the exception and current time' do
         jobs = Navvy::Job.next
         jobs.first.run
-        job_count.should == 1
         jobs.first.exception.should == 'this method is broken'
         jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time
       end
+    end
+  end
+  
+  describe '#started' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.enqueue(Cow, :speak)
+    end
+
+    it 'should update the jobs started_at date' do
+      jobs = Navvy::Job.next
+      jobs.first.started
+      jobs.first.started_at.should_not be_nil
     end
   end
 
@@ -281,6 +318,124 @@ describe 'Navvy::Job' do
       jobs = Navvy::Job.next
       jobs.first.failed('broken')
       jobs.first.exception.should == 'broken'
+    end
+
+    it 'should retry' do
+      jobs = Navvy::Job.next
+      jobs.first.should_receive(:retry)
+      jobs.first.failed('broken')
+    end
+
+    it 'should not retry when the job has failed 25 times already' do
+      jobs = Navvy::Job.next
+      jobs.first.stub!(:times_failed).and_return 25
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken')
+    end
+
+    it 'should not retry when the job has failed 10 times' do
+      Navvy::Job.max_attempts = 10
+      jobs = Navvy::Job.next
+      jobs.first.stub!(:times_failed).and_return 10
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken')
+    end
+  end
+
+  describe '#retry' do
+    before(:each) do
+      delete_all_jobs
+    end
+
+    it 'should enqueue a child for the failed job' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, true, false)
+      job = failed_job.retry
+      job.object.should ==            'Cow'
+      job.method_name.to_s.should ==  'speak'
+      job.args.should ==              [true, false]
+      job.parent_id.should ==         failed_job.id
+    end
+
+    it 'should handle hashes correctly' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      job = failed_job.retry
+      job.args.should ==      [{'name' => 'Betsy'}]
+      job.parent_id.should == failed_job.id
+    end
+
+    it 'should set the priority' do
+      failed_job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        'name' => 'Betsy',
+        :job_options => {
+          :priority => 2
+        }
+      )
+      job = failed_job.retry
+      job.priority.should == 2
+    end
+
+    it 'should set the run_at date to about 16 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 2
+      now = Time.now
+      job = failed_job.retry
+      job.run_at.to_i.should == (now + 16).to_i
+    end
+
+    it 'should set the run_at date to about 256 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 4
+      now = Time.now
+      job = failed_job.retry
+      job.run_at.to_i.should == (now + 256).to_i
+    end
+
+    it 'should set the run_at date to about 4096 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 8
+      now = Time.now
+      job = failed_job.retry
+      job.run_at.to_i.should == (now + 4096).to_i
+    end
+
+    it 'should set the parent_id to the master job id' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_child = failed_job.retry
+      failed_child.retry.parent_id.should == failed_job.id
+    end
+  end
+
+  describe '#times_failed' do
+    before(:each) do
+      delete_all_jobs
+      @failed_job = Navvy::Job.create(
+        :failed_at => Time.now
+      )
+    end
+
+    it 'should return 1' do
+      @failed_job.times_failed.should == 1
+    end
+
+    it 'should return 3 when having 2 failed children' do
+      2.times do
+        Navvy::Job.create(
+          :failed_at => Time.now,
+          :parent_id => @failed_job.id
+        )
+      end
+
+      @failed_job.times_failed.should == 3
+    end
+
+    it 'should return 2 when having failed and having a failed parent' do
+      failed_child =  Navvy::Job.create(
+        :failed_at => Time.now,
+        :parent_id => @failed_job.id
+      )
+      failed_child.times_failed.should == 2
     end
   end
 

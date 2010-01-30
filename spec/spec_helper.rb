@@ -39,4 +39,6 @@ class Cow
   end
 end
 
-Navvy::Log.quiet = true
+Navvy.configure do |config|
+  config.quiet = true
+end

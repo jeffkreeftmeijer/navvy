@@ -4,30 +4,6 @@ require 'yaml'
 
 module Navvy
   class Job < Sequel::Model
-    class << self
-      attr_writer :limit
-      attr_accessor :keep
-    end
-
-    ##
-    # Default limit of jobs to be fetched
-    #
-    # @return [Integer] limit
-
-    def self.limit
-      @limit || 100
-    end
-
-    ##
-    # Should the job be kept?
-    #
-    # @return [true, false] keep
-
-    def self.keep?
-      keep = (@keep || false)
-      return (Time.now + keep) >= Time.now if keep.is_a? Fixnum
-      keep
-    end
 
     ##
     # Add a job to the job queue.
@@ -43,6 +19,7 @@ module Navvy
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
+        args.pop if args.last.empty?
       end
 
       create(
@@ -50,6 +27,7 @@ module Navvy
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )
@@ -87,31 +65,19 @@ module Navvy
         filter('`completed_at` IS NOT NULL').delete unless keep?
       end
     end
-
+    
     ##
-    # Run the job. Will delete the Navvy::Job record and return its return
-    # value if it runs successfully unless Navvy::Job.keep is set. If a job
-    # fails, it'll update the Navvy::Job record to include the exception
-    # message it sent back and set the :failed_at date. Failed jobs never get
-    # deleted.
+    # Mark the job as started. Will set started_at to the current time.
     #
-    # @example
-    #   job = Navvy::Job.next # finds the next available job in the queue
-    #   job.run               # runs the job and returns the job's return value
-    #
-    # @return [String] return value of the called method.
+    # @return [true, false] update_attributes the result of the
+    # update_attributes call
 
-    def run
-      begin
-        update(:started_at => Time.now)
-        result = Kernel.const_get(object).send(method_name, *args)
-        Navvy::Job.keep? ? completed : destroy
-        result
-      rescue Exception => exception
-        failed(exception.message)
-      end
+    def started
+      update({
+        :started_at =>  Time.now
+      })
     end
-
+    
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.
@@ -130,7 +96,8 @@ module Navvy
 
     ##
     # Mark the job as failed. Will set failed_at to the current time and
-    # optionally add the exception message if provided.
+    # optionally add the exception message if provided. Also, it will retry
+    # the job unless max_attempts has been reached.
     #
     # @param [String] exception the exception message you want to store.
     #
@@ -138,69 +105,24 @@ module Navvy
     # update_attributes call
 
     def failed(message = nil)
-      update({
+      self.retry unless times_failed >= self.class.max_attempts
+      update(
         :failed_at => Time.now,
         :exception => message
-      })
+      )
     end
 
     ##
-    # Check if the job has been run.
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
     #
-    # @return [true, false] ran
+    # @return [Integer] count the amount of times the job has failed
 
-    def ran?
-      completed? || failed?
+    def times_failed
+      i = parent_id || id
+      self.class.filter(
+        "`id` == '#{i}' OR `parent_id` == '#{i}'"
+      ).count
     end
-
-    ##
-    # Check how long it took for a job to complete or fail
-    #
-    # @return [Time, Integer] time the time it took
-
-    def duration
-      ran? ? (completed_at || failed_at) - started_at : 0
-    end
-
-    ##
-    # Check if completed_at is set
-    #
-    # @return [true, false] set?
-
-    def completed_at?
-      !completed_at.nil?
-    end
-
-    ##
-    # Check if failed_at is set
-    #
-    # @return [true, false] set?
-
-    def failed_at?
-      !failed_at.nil?
-    end
-
-    ##
-    # Get the job arguments as an array
-    #
-    # @return [array] arguments
-
-    def args
-      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
-    end
-
-    ##
-    # Get the job status
-    #
-    # @return [:pending, :completed, :failed] status
-
-    def status
-      return :completed if completed?
-      return :failed if failed?
-      :pending
-    end
-
-    alias_method :completed?, :completed_at?
-    alias_method :failed?,    :failed_at?
   end
 end
