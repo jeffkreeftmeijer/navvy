@@ -218,6 +218,7 @@ module Navvy
     def times_failed
       i = parent_id || id
       self.class.count(
+        :failed_at => {'$ne' => nil},
         '$where' => "this._id == '#{i}' || this.parent_id == '#{i}'"
       )
     end

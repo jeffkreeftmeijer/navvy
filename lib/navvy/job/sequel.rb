@@ -194,7 +194,7 @@ module Navvy
     def times_failed
       i = parent_id || id
       self.class.filter(
-        "`id` == '#{i}' OR `parent_id` == '#{i}'"
+        "(`id` == '#{i}' OR `parent_id` == '#{i}') AND `failed_at` IS NOT NULL"
       ).count
     end
 
