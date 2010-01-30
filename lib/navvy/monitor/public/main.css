@@ -3,11 +3,39 @@ body{
   color: #222;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
-  padding: 10px;
+}
+
+div.container{
+  margin: 25px auto;
+  width: 960px;
+}
+
+h1,h2{
+  margin: 10px;
+}
+
+a{
+  background-color: #222;
+  color: #fff;
+  display: block;  
+  float:left;    
+  margin: 10px;
+  padding: 25px 0px;
+  text-align: center;
+  width: 300px;
+}
+
+.failed{
+  background-color: red;
+}
+
+.completed{
+  background-color: green;
 }
 
 table{
-  width: 100%;
+  margin: 10px;
+  width: 940px;
 }
 
 table tr td{

@@ -1,22 +1,21 @@
+%h2 Overview
+
 %table
   %thead
     %tr
       %td Object
       %td Method
       %td Arguments
+      %td Times failed
       %td Priority
       %td Return / Exception
-      %td Run time
       %td Completed at / Failed at
   -@jobs.each do |job|
     %tr{:class => job.status}
       %td= job.object
       %td= job.method_name
       %td= job.arguments
+      %td= job.times_failed
       %td= job.priority
       %td= job.return || job.exception
-      %td
-        - if job.ran?
-          = "#{((job.completed_at || job.failed_at) - job.started_at).to_i} seconds"
       %td= job.completed_at || job.failed_at
-        

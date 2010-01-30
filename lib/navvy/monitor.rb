@@ -9,7 +9,10 @@ module Navvy
     set :static,  true
     
     get '/' do
-      @jobs = Job.all(:order => 'priority desc, created_at asc')
+      @pending_count =    Job.count(:failed_at => nil, :completed_at => nil)
+      @completed_count =  Job.count(:completed_at => {'$ne' => nil})
+      @failed_count =     Job.count(:failed_at => {'$ne' => nil})
+      @jobs =             Job.all(:order => 'priority desc, created_at asc', :parent_id => nil, :limit => 100)
       haml :index, :layout => true
     end
   end

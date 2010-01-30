@@ -7,7 +7,7 @@ namespace :navvy do
   end
 
   desc "Start a Navvy worker."
-  task :work => :environment do                                                                       
+  task :work => :environment do
     Navvy::Worker.start
   end
 

@@ -1,5 +1,10 @@
 %link{:rel => 'stylesheet', :type => 'text/css', :href => 'main.css'}
 
-%h1 Navvy Monitor
+.container
+  %h1 Navvy::Monitor
+  
+  %a.pending=    "pending: #{@pending_count}"
+  %a.completed=  "completed: #{@completed_count}"
+  %a.failed=     "failed: #{@failed_count}"
 
-= yield
+  = yield
