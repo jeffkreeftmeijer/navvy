@@ -189,7 +189,8 @@ module Navvy
         *(args << {
           :job_options => {
             :parent_id => parent_id || id,
-            :run_at => Time.now + times_failed ** 4
+            :run_at => Time.now + times_failed ** 4,
+            :priority => priority
           }
         })
       )

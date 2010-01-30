@@ -349,7 +349,20 @@ describe 'Navvy::Job' do
       job.args.should ==      [{'name' => 'Betsy'}]
       job.parent_id.should == failed_job.id
     end
-
+    
+    it 'should set the priority' do
+      failed_job = Navvy::Job.enqueue(
+        Cow,
+        :speak,
+        'name' => 'Betsy',
+        :job_options => {
+          :priority => 2
+        }
+      )
+      job = failed_job.retry
+      job.priority.should == 2
+    end
+    
     it 'should set the run_at date to about 16 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 2
