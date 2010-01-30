@@ -197,7 +197,6 @@ describe 'Navvy::Job' do
       it 'should store the exception and current time' do
         jobs = Navvy::Job.next
         jobs.first.run
-        job_count.should == 1
         jobs.first.exception.should == 'this method is broken'
         jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time

@@ -4,10 +4,8 @@ require 'dm-core'
 module Navvy
   class Job
     include DataMapper::Resource
-
     class << self
-      attr_writer :limit
-      attr_accessor :keep
+      attr_writer :limit, :keep, :max_attempts
     end
 
     property :id,            Serial
@@ -17,6 +15,7 @@ module Navvy
     property :priority,      Integer, :default => 0
     property :return,        String
     property :exception,     String
+    property :parent_id,     Integer
     property :created_at,    Time
     property :run_at,        Time
     property :started_at,    Time
@@ -24,12 +23,30 @@ module Navvy
     property :failed_at,     Time
 
     ##
-    # Default limit of jobs to be fetched
+    # Default limit of jobs to be fetched.
     #
     # @return [Integer] limit
 
     def self.limit
-      @limit || 100
+      @limit || Navvy.configuration.job_limit
+    end
+
+    ##
+    # If and how long the jobs should be kept.
+    #
+    # @return [Fixnum, true, false] keep
+
+    def self.keep
+      @keep || Navvy.configuration.keep_jobs
+    end
+
+    ##
+    # How often should a job be retried?
+    #
+    # @return [Fixnum] max_attempts
+
+    def self.max_attempts
+      @max_attempts || Navvy.configuration.max_attempts
     end
 
     ##
@@ -54,12 +71,20 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
+      options = {}
+      if args.last.is_a?(Hash)
+        options = args.last.delete(:job_options) || {}
+        args.pop if args.last.empty?
+      end
+
       new_job = self.new
       new_job.attributes = {
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
-        :run_at =>      Time.now,
+        :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
+        :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       }
       new_job.save
@@ -81,13 +106,13 @@ module Navvy
       all(
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at.lte =>     Time.now,
+        :run_at.lte =>    Time.now,
         :order =>         [ :priority.desc, :created_at.asc ],
         :limit =>         limit
       )
     end
 
-    ##
+    ##                     
     # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
     # false it'll delete every completed job, if it's a timestamp it'll only
     # delete completed jobs that have passed their keeptime.
@@ -96,9 +121,9 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        all( :completed_at.lte => (Time.now - keep)).destroy
+        all(:completed_at.lte => (Time.now - keep)).destroy
       else
-        all( :completed_at.not => nil ).destroy unless keep?
+        all(:completed_at.not => nil ).destroy unless keep?
       end
     end
 
@@ -149,6 +174,8 @@ module Navvy
     ##
     # Mark the job as failed. Will set failed_at to the current time and
     # optionally add the exception message if provided.
+    # optionally add the exception message if provided. Also, it will retry
+    # the job unless max_attempts has been reached.
     #
     # @param [String] exception the exception message you want to store.
     #
@@ -156,10 +183,44 @@ module Navvy
     # update_attributes call
 
     def failed(message = nil)
+      self.retry unless times_failed >= self.class.max_attempts
       update(
         :failed_at => Time.now,
         :exception => message
       )
+    end
+
+    ##
+    # Retry the current job. Will add self to the queue again, giving the clone
+    # a parend_id equal to self.id.
+    #
+    # @return [true, false]
+
+    def retry
+      self.class.enqueue(
+        object,
+        method_name,
+        *(args << {
+          :job_options => {
+            :parent_id => parent_id || id,
+            :run_at => Time.now + times_failed ** 4,
+            :priority => priority
+          }
+        })
+      )
+    end
+
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+
+    def times_failed
+      i = parent_id || id
+      self.class.all(
+        :conditions => ["`id` = ? OR `parent_id` = ?", i, i]
+      ).count
     end
 
     ##
@@ -205,6 +266,17 @@ module Navvy
 
     def args
       arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+    end
+
+    ##
+    # Get the job status
+    #
+    # @return [:pending, :completed, :failed] status
+
+    def status
+      return :completed if completed?
+      return :failed if failed?
+      :pending
     end
 
     alias_method :completed?, :completed_at?

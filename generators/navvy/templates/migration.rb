@@ -4,8 +4,10 @@ class CreateJobs < ActiveRecord::Migration
       t.string    :object
       t.string    :method_name
       t.text      :arguments
+      t.integer   :priority, :default => 0
       t.string    :return
       t.string    :exception
+      t.integer   :parent_id
       t.datetime  :created_at
       t.datetime  :run_at
       t.datetime  :started_at
@@ -13,7 +15,7 @@ class CreateJobs < ActiveRecord::Migration
       t.datetime  :failed_at
     end
   end
- 
+
   def self.down
     drop_table :jobs
   end

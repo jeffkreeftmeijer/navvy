@@ -1,6 +1,18 @@
 module Navvy
   class Worker
+    class << self
+      attr_writer :sleep_time
+    end
 
+    ##
+    # Sleep time of the worker.
+    #
+    # @return [Integer] sleep
+
+    def self.sleep_time
+      @sleep_time || Navvy.configuration.sleep_time
+    end
+    
     ##
     # Start the worker.
 
@@ -17,7 +29,7 @@ module Navvy
           Navvy::Job.cleanup
           break
         end
-        sleep 5
+        sleep sleep_time
       end
     end
 

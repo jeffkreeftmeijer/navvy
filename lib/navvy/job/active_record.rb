@@ -4,17 +4,34 @@ require 'active_record'
 module Navvy
   class Job < ActiveRecord::Base
     class << self
-      attr_writer :limit
-      attr_accessor :keep
+      attr_writer :limit, :keep, :max_attempts
     end
 
     ##
-    # Default limit of jobs to be fetched
+    # Default limit of jobs to be fetched.
     #
     # @return [Integer] limit
 
     def self.limit
-      @limit || 100
+      @limit || Navvy.configuration.job_limit
+    end
+
+    ##
+    # If and how long the jobs should be kept.
+    #
+    # @return [Fixnum, true, false] keep
+
+    def self.keep
+      @keep || Navvy.configuration.keep_jobs
+    end
+
+    ##
+    # How often should a job be retried?
+    #
+    # @return [Fixnum] max_attempts
+
+    def self.max_attempts
+      @max_attempts || Navvy.configuration.max_attempts
     end
 
     ##
@@ -38,11 +55,19 @@ module Navvy
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
+      options = {}
+      if args.last.is_a?(Hash)
+        options = args.last.delete(:job_options) || {}
+         args.pop if args.last.empty?
+      end
+
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args,
-        :run_at =>      Time.now,
+        :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
+        :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )
     end
@@ -65,7 +90,7 @@ module Navvy
           Time.now
         ],
         :limit =>         limit,
-        :order =>         'created_at'
+        :order =>         'priority desc, created_at'
       )
     end
 
@@ -135,7 +160,8 @@ module Navvy
 
     ##
     # Mark the job as failed. Will set failed_at to the current time and
-    # optionally add the exception message if provided.
+    # optionally add the exception message if provided. Also, it will retry
+    # the job unless max_attempts has been reached.
     #
     # @param [String] exception the exception message you want to store.
     #
@@ -143,10 +169,44 @@ module Navvy
     # update_attributes call
 
     def failed(message = nil)
-      update_attributes({
+      self.retry unless times_failed >= self.class.max_attempts
+      update_attributes(
         :failed_at => Time.now,
         :exception => message
-      })
+      )
+    end
+
+    ##
+    # Retry the current job. Will add self to the queue again, giving the clone
+    # a parend_id equal to self.id.
+    #
+    # @return [true, false]
+
+    def retry
+      self.class.enqueue(
+        object,
+        method_name,
+        *(args << {
+          :job_options => {
+            :parent_id => parent_id || id,
+            :run_at => Time.now + times_failed ** 4,
+            :priority => priority
+          }
+        })
+      )
+    end
+
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+
+    def times_failed
+      i = parent_id || id
+      self.class.count(
+        :conditions => "`id` == '#{i}' OR `parent_id` == '#{i}'"
+      )
     end
 
     ##
@@ -192,6 +252,17 @@ module Navvy
 
     def args
       arguments.is_a?(Array) ? arguments : YAML.load(arguments)
+    end
+
+    ##
+    # Get the job status
+    #
+    # @return [:pending, :completed, :failed] status
+
+    def status
+      return :completed if completed?
+      return :failed if failed?
+      :pending
     end
 
     alias_method :completed?, :completed_at?

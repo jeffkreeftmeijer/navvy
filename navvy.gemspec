@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-01-26}
+  s.date = %q{2010-01-30}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
      "generators/navvy/templates/migration.rb",
      "lib/generators/navvy_generator.rb",
      "lib/navvy.rb",
+     "lib/navvy/configuration.rb",
      "lib/navvy/job/active_record.rb",
      "lib/navvy/job/data_mapper.rb",
      "lib/navvy/job/mongo_mapper.rb",
@@ -35,6 +36,7 @@ Gem::Specification.new do |s|
      "lib/navvy/tasks.rb",
      "lib/navvy/worker.rb",
      "navvy.gemspec",
+     "spec/configuration_spec.rb",
      "spec/job_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
@@ -52,7 +54,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.test_files = [
-    "spec/job_spec.rb",
+    "spec/configuration_spec.rb",
+     "spec/job_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
      "spec/setup/data_mapper.rb",

@@ -7,8 +7,22 @@ module Navvy
     
     class LoggerNotFound < StandardError; end
 
+    ##
+    # Default logger
+    #
+    # @return [Symbol, nil] logger
+
     def self.logger
-      @logger
+      @logger || Navvy.configuration.logger
+    end
+
+    ##
+    # Be quiet?
+    #
+    # @return [true, false] quiet
+
+    def self.quiet
+      @quiet || Navvy.configuration.quiet
     end
 
     ##
