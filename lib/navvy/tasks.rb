@@ -7,12 +7,12 @@ namespace :navvy do
   end
 
   desc "Start a Navvy worker."
-  task :work => :environment do
+  task :work => :environment do                                                                       
     Navvy::Worker.start
   end
 
   desc "Start the Navvy monitor"
   task :monitor => :environment do
-    Navvy::Monitor.run!
+    Rack::Handler::Thin.run Navvy::Monitor
   end
 end
