@@ -202,7 +202,7 @@ module Navvy
         *(args << {
           :job_options => {
             :parent_id => parent_id || id,
-            :run_at => Time.now + 4 ** times_failed
+            :run_at => Time.now + times_failed ** 4
           }
         })
       )
@@ -215,8 +215,9 @@ module Navvy
     # @return [Integer] count the amount of times the job has failed
 
     def times_failed
+      i = parent_id || id
       self.class.count(
-        '$where' => "this._id == '#{id}' || this.parent_id == '#{id}'"
+        '$where' => "this._id == '#{i}' || this.parent_id == '#{i}'"
       )
     end
 

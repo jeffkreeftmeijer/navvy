@@ -350,19 +350,28 @@ describe 'Navvy::Job' do
       job.parent_id.should == failed_job.id
     end
 
-    it 'should set the run_at date to about 4 seconds from now' do
-      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
-      job = failed_job.retry
-      job.run_at.to_i.should >= (Time.now + 3).to_i
-      job.run_at.to_i.should <= (Time.now + 5).to_i
-    end
-
     it 'should set the run_at date to about 16 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 2
+      now = Time.now
       job = failed_job.retry
-      job.run_at.to_i.should >= (Time.now + 15).to_i
-      job.run_at.to_i.should <= (Time.now + 17).to_i
+      job.run_at.to_i.should == (now + 16).to_i
+    end
+    
+    it 'should set the run_at date to about 256 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 4
+      now = Time.now
+      job = failed_job.retry
+      job.run_at.to_i.should == (now + 256).to_i
+    end
+    
+    it 'should set the run_at date to about 4096 seconds from now' do
+      failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
+      failed_job.stub!(:times_failed).and_return 8
+      now = Time.now
+      job = failed_job.retry
+      job.run_at.to_i.should == (now + 4096).to_i
     end
     
     it 'should set the parent_id to the master job id' do
@@ -393,6 +402,14 @@ describe 'Navvy::Job' do
       end
 
       @failed_job.times_failed.should == 3
+    end
+    
+    it 'should return 2 when having failed and having a failed parent' do
+      failed_child =  Navvy::Job.create(
+        :failed_at => Time.now,
+        :parent_id => @failed_job.id
+      )
+      failed_child.times_failed.should == 2
     end
   end
 
