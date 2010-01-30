@@ -319,7 +319,7 @@ describe 'Navvy::Job' do
       jobs.first.should_not_receive(:retry)
       jobs.first.failed('broken')
     end
-    
+
     it 'should not retry when the job has failed 10 times' do
       Navvy::Job.max_attempts = 10
       jobs = Navvy::Job.next
@@ -349,7 +349,7 @@ describe 'Navvy::Job' do
       job.args.should ==      [{'name' => 'Betsy'}]
       job.parent_id.should == failed_job.id
     end
-    
+
     it 'should set the priority' do
       failed_job = Navvy::Job.enqueue(
         Cow,
@@ -362,7 +362,7 @@ describe 'Navvy::Job' do
       job = failed_job.retry
       job.priority.should == 2
     end
-    
+
     it 'should set the run_at date to about 16 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 2
@@ -370,7 +370,7 @@ describe 'Navvy::Job' do
       job = failed_job.retry
       job.run_at.to_i.should == (now + 16).to_i
     end
-    
+
     it 'should set the run_at date to about 256 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 4
@@ -378,7 +378,7 @@ describe 'Navvy::Job' do
       job = failed_job.retry
       job.run_at.to_i.should == (now + 256).to_i
     end
-    
+
     it 'should set the run_at date to about 4096 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 8
@@ -386,7 +386,7 @@ describe 'Navvy::Job' do
       job = failed_job.retry
       job.run_at.to_i.should == (now + 4096).to_i
     end
-    
+
     it 'should set the parent_id to the master job id' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_child = failed_job.retry
@@ -416,7 +416,7 @@ describe 'Navvy::Job' do
 
       @failed_job.times_failed.should == 3
     end
-    
+
     it 'should return 2 when having failed and having a failed parent' do
       failed_child =  Navvy::Job.create(
         :failed_at => Time.now,
