@@ -67,6 +67,40 @@ module Navvy
     end
     
     ##
+    # The amount of pending jobs
+    #
+    # @return [Integer] count
+    
+    def self.pending_count
+      filter(
+        :failed_at => nil,
+        :completed_at => nil
+      ).count
+    end
+    
+    ##
+    # The amount of completed jobs
+    #
+    # @return [Integer] count
+    
+    def self.completed_count
+      filter(
+        '`completed_at` IS NOT NULL'
+      ).count
+    end
+    
+    ##
+    # The amount of failed jobs
+    #
+    # @return [Integer] count
+    
+    def self.failed_count
+      filter(
+        '`failed_at` IS NOT NULL'
+      ).count
+    end
+    
+    ##
     # Mark the job as started. Will set started_at to the current time.
     #
     # @return [true, false] update_attributes the result of the

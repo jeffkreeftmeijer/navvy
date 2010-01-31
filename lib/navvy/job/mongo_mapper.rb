@@ -85,7 +85,41 @@ module Navvy
         ) unless keep?
       end
     end
+
+    ##
+    # The amount of pending jobs
+    #
+    # @return [Integer] count
     
+    def self.pending_count
+      count(
+        :failed_at => nil,
+        :completed_at => nil
+      )
+    end
+    
+    ##
+    # The amount of completed jobs
+    #
+    # @return [Integer] count
+    
+    def self.completed_count
+      count(
+        :completed_at => {'$ne' => nil}
+      )
+    end
+    
+    ##
+    # The amount of failed jobs
+    #
+    # @return [Integer] count
+    
+    def self.failed_count
+      count(
+        :failed_at => {'$ne' => nil}
+      )
+    end
+
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
@@ -97,7 +131,7 @@ module Navvy
         :started_at =>  Time.now
       })
     end
-    
+
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.

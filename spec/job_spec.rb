@@ -205,6 +205,45 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '.pending_count' do
+    before(:each) do
+      delete_all_jobs
+      3.times do; Navvy::Job.create; end
+      2.times do; Navvy::Job.create(:completed_at => Time.now); end
+      Navvy::Job.create(:failed_at => Time.now)
+    end
+
+    it 'should return 3' do      
+      Navvy::Job.pending_count.should == 3
+    end
+  end
+  
+  describe '.completed_count' do
+    before(:each) do
+      delete_all_jobs
+      3.times do; Navvy::Job.create; end
+      2.times do; Navvy::Job.create(:completed_at => Time.now); end
+      Navvy::Job.create(:failed_at => Time.now)
+    end
+
+    it 'should return 2' do      
+      Navvy::Job.completed_count.should == 2
+    end
+  end
+  
+  describe '.failed_count' do
+    before(:each) do
+      delete_all_jobs
+      3.times do; Navvy::Job.create; end
+      2.times do; Navvy::Job.create(:completed_at => Time.now); end
+      Navvy::Job.create(:failed_at => Time.now)
+    end
+
+    it 'should return 1' do      
+      Navvy::Job.failed_count.should == 1
+    end
+  end
+
   describe '#run' do
     it 'should pass the arguments' do
       delete_all_jobs
