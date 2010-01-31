@@ -8,14 +8,23 @@
       %td Arguments
       %td Times failed
       %td Priority
-      %td Return / Exception
       %td Completed at / Failed at
+      %td
   -@jobs.each do |job|
     %tr{:class => job.status}
       %td= job.object
       %td= job.method_name
       %td= job.arguments
-      %td= job.times_failed
-      %td= job.priority
-      %td= job.return || job.exception
+      %td
+        -if job.times_failed > 0
+          %strong= job.times_failed
+        -else
+          0
+      %td
+        -if job.priority > 0
+          %strong= job.priority
+        -else
+          0
       %td= job.completed_at || job.failed_at
+      %td
+        %a{:href => job.parent_id || job.id} detail

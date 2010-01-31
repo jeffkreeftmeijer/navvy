@@ -5,6 +5,10 @@ body{
   font-size: 14px;
 }
 
+table{
+  font-size: 14px;
+}
+
 div.container{
   margin: 25px auto;
   width: 960px;
@@ -14,7 +18,7 @@ h1,h2{
   margin: 10px;
 }
 
-a{
+div.quicklinks a{
   background-color: #222;
   color: #fff;
   display: block;  
@@ -25,11 +29,11 @@ a{
   width: 300px;
 }
 
-.failed{
+div.quicklinks a.failed{
   background-color: red;
 }
 
-.completed{
+div.quicklinks a.completed{
   background-color: green;
 }
 

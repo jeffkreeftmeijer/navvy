@@ -1,0 +1,22 @@
+%h2= params[:id]
+
+%table
+  %thead
+    %tr
+      %td Object
+      %td Method
+      %td Arguments
+      %td Times failed
+      %td Priority
+      %td Return / Exception
+      %td Completed at / Failed at
+  -@jobs.each do |job|
+    %tr{:class => job.status}
+      %td= job.object
+      %td= job.method_name
+      %td= job.arguments
+      %td
+        %a{:href => job.parent_id || job.id}= job.times_failed
+      %td= job.priority
+      %td= job.return || job.exception
+      %td= job.completed_at || job.failed_at
