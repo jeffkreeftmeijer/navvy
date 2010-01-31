@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'dm-core'
+require 'dm-aggregates'
 
 module Navvy
   class Job
@@ -66,7 +67,7 @@ module Navvy
         :failed_at =>     nil,
         :completed_at =>  nil,
         :run_at.lte =>    Time.now,
-        :order =>         [ :priority.desc, :created_at.asc ],
+        :order =>         [:priority.desc, :created_at.asc],
         :limit =>         limit
       )
     end
@@ -85,39 +86,25 @@ module Navvy
         all(:completed_at.not => nil ).destroy unless keep?
       end
     end
-    
-    ##
-    # The amount of pending jobs
-    #
-    # @return [Integer] count
-    
-    def self.pending_count
-      all(
-        :failed_at => nil,
-        :completed_at => nil
-      ).count
-    end
-    
-    ##
-    # The amount of completed jobs
-    #
-    # @return [Integer] count
-    
-    def self.completed_count
-      all(
-        :completed_at.not => nil
-      ).count
-    end
-    
-    ##
-    # The amount of failed jobs
-    #
-    # @return [Integer] count
-    
-    def self.failed_count
-      all(
-        :failed_at.not => nil
-      ).count
+        
+    def self.count(*args)
+      case args.first
+      when :pending
+        all(
+          :failed_at => nil,
+          :completed_at => nil
+        ).count
+      when :completed
+        all(
+          :completed_at.not => nil
+        ).count
+      when :failed   
+        all(
+          :failed_at.not => nil
+        ).count
+      else
+        super(*args)
+      end
     end
     
     ##

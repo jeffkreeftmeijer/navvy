@@ -85,39 +85,32 @@ module Navvy
         ) unless keep?
       end
     end
-
+    
     ##
-    # The amount of pending jobs
+    # The amount of pending, completed or failed jobs. If given a symbol of
+    # :pending, :completed or :failed it will count the jobs with that status.
+    # Otherwise it'll pass everything to super.
     #
     # @return [Integer] count
     
-    def self.pending_count
-      count(
-        :failed_at => nil,
-        :completed_at => nil
-      )
-    end
-    
-    ##
-    # The amount of completed jobs
-    #
-    # @return [Integer] count
-    
-    def self.completed_count
-      count(
-        :completed_at => {'$ne' => nil}
-      )
-    end
-    
-    ##
-    # The amount of failed jobs
-    #
-    # @return [Integer] count
-    
-    def self.failed_count
-      count(
-        :failed_at => {'$ne' => nil}
-      )
+    def self.count(*args)
+      case args.first
+      when :pending
+        count(
+          :failed_at => nil,
+          :completed_at => nil
+        )
+      when :completed
+        count(
+          :completed_at => {'$ne' => nil}
+        )
+      when :failed   
+        count(
+          :failed_at => {'$ne' => nil}
+        )
+      else
+        super(*args)
+      end
     end
 
     ##

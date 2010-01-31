@@ -145,7 +145,7 @@ describe 'Navvy::Job' do
 
     it 'should find the next 100 available jobs' do
       jobs = Navvy::Job.next
-      jobs.count.should == 100
+      jobs.length.should == 100
       jobs.each do |job|
         job.should be_instance_of Navvy::Job
         job.method_name.to_s.should == 'speak'
@@ -159,12 +159,12 @@ describe 'Navvy::Job' do
     end
 
     it 'should find the next 2 available jobs' do
-      Navvy::Job.next(2).count.should == 2
+      Navvy::Job.next(2).length.should == 2
     end
 
     it 'should find the next 4 available jobs' do
       Navvy::Job.limit = 4
-      Navvy::Job.next.count.should == 4
+      Navvy::Job.next.length.should == 4
     end
   end
 
@@ -205,7 +205,7 @@ describe 'Navvy::Job' do
     end
   end
 
-  describe '.pending_count' do
+  describe '.count' do
     before(:each) do
       delete_all_jobs
       3.times do; Navvy::Job.create; end
@@ -213,34 +213,16 @@ describe 'Navvy::Job' do
       Navvy::Job.create(:failed_at => Time.now)
     end
 
-    it 'should return 3' do      
-      Navvy::Job.pending_count.should == 3
-    end
-  end
-  
-  describe '.completed_count' do
-    before(:each) do
-      delete_all_jobs
-      3.times do; Navvy::Job.create; end
-      2.times do; Navvy::Job.create(:completed_at => Time.now); end
-      Navvy::Job.create(:failed_at => Time.now)
+    it 'should return 3 for pending jobs' do
+      Navvy::Job.count(:pending).should == 3
     end
 
-    it 'should return 2' do      
-      Navvy::Job.completed_count.should == 2
-    end
-  end
-  
-  describe '.failed_count' do
-    before(:each) do
-      delete_all_jobs
-      3.times do; Navvy::Job.create; end
-      2.times do; Navvy::Job.create(:completed_at => Time.now); end
-      Navvy::Job.create(:failed_at => Time.now)
+    it 'should return 3 for pending jobs' do
+      Navvy::Job.count(:completed).should == 2
     end
 
-    it 'should return 1' do      
-      Navvy::Job.failed_count.should == 1
+    it 'should return 3 for pending jobs' do
+      Navvy::Job.count(:failed).should == 1
     end
   end
 
@@ -308,7 +290,7 @@ describe 'Navvy::Job' do
       end
     end
   end
-  
+
   describe '#started' do
     before(:each) do
       delete_all_jobs
@@ -468,17 +450,17 @@ describe 'Navvy::Job' do
 
       @failed_job.times_failed.should == 3
     end
-    
+
      it 'should return 2 when having 1 failed and one pending child' do
         Navvy::Job.create(
           :failed_at => Time.now,
           :parent_id => @failed_job.id
         )
-        
+
         Navvy::Job.create(
           :parent_id => @failed_job.id
         )
-        
+
         @failed_job.times_failed.should == 2
       end
 

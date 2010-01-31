@@ -74,41 +74,34 @@ module Navvy
     end
     
     ##
-    # The amount of pending jobs
+    # The amount of pending, completed or failed jobs. If given a symbol of
+    # :pending, :completed or :failed it will count the jobs with that status.
+    # Otherwise it'll pass everything to super.
     #
     # @return [Integer] count
-    
-    def self.pending_count
-      count(
-        :conditions => {
-          :failed_at => nil,
-          :completed_at => nil
-        }
-      )
+
+    def self.count(*args)
+      case args.first
+      when :pending
+        count(
+          :conditions => {
+            :failed_at => nil,
+            :completed_at => nil
+          }
+        )
+      when :completed
+        count(
+          :conditions => '`completed_at` IS NOT NULL'
+        )
+      when :failed
+        count(
+          :conditions => '`failed_at` IS NOT NULL'
+        )
+      else
+        super(*args)
+      end
     end
-    
-    ##
-    # The amount of completed jobs
-    #
-    # @return [Integer] count
-    
-    def self.completed_count
-      count(
-        :conditions => '`completed_at` IS NOT NULL'
-      )
-    end
-    
-    ##
-    # The amount of failed jobs
-    #
-    # @return [Integer] count
-    
-    def self.failed_count
-      count(
-        :conditions => '`failed_at` IS NOT NULL'
-      )
-    end
-    
+        
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
