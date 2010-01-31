@@ -10,6 +10,7 @@
       %td Priority
       %td Return / Exception
       %td Completed at / Failed at
+      %td Run at
   -@jobs.each do |job|
     %tr{:class => job.status}
       %td= job.object
@@ -20,3 +21,4 @@
       %td= job.priority
       %td= job.return || job.exception
       %td= job.completed_at || job.failed_at
+      %td= job.run_at

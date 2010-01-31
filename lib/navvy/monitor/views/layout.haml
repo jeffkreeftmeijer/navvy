@@ -4,8 +4,8 @@
   %h1 Navvy::Monitor
   
   .quicklinks
-    %a.pending{:href => 'pending'}=     "pending: #{@pending_count}"
-    %a.completed{:href => 'completed'}= "completed: #{@completed_count}"
-    %a.failed{:href => 'failed'}=       "failed: #{@failed_count}"
+    %a.pending{:href => 'pending'}=     "pending: #{Navvy::Job.pending_count}"
+    %a.completed{:href => 'completed'}= "completed: #{Navvy::Job.completed_count}"
+    %a.failed{:href => 'failed'}=       "failed: #{Navvy::Job.failed_count}"
 
   = yield

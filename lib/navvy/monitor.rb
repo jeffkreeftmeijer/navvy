@@ -8,12 +8,6 @@ module Navvy
     set :public,  File.expand_path(File.dirname(__FILE__) + '/monitor/public')
     set :static,  true
 
-    before do
-      @pending_count =    Job.count(:failed_at => nil, :completed_at => nil)
-      @completed_count =  Job.count(:completed_at => {'$ne' => nil})
-      @failed_count =     Job.count(:failed_at => {'$ne' => nil})
-    end
-
     get '/' do
       @jobs = Job.all(:order => 'run_at desc, priority desc', :limit => 250)
       haml :index, :layout => true
