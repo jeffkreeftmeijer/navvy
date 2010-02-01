@@ -5,7 +5,9 @@ module Navvy
     end
 
     ##
-    # Default limit of jobs to be fetched.
+    # Limit of jobs to be fetched at once. Will use the value stored in
+    # Navvy.configuration (defaults to 100), or -- for backwards compatibility
+    # -- Navvy::Job.limit.
     #
     # @return [Integer] limit
 
@@ -14,7 +16,9 @@ module Navvy
     end
 
     ##
-    # If and how long the jobs should be kept.
+    # If and how long the jobs should be kept. Will use the value stored in
+    # Navvy.configuration (defaults to false), or -- for backwards
+    # compatibility -- Navvy::Job.keep.
     #
     # @return [Fixnum, true, false] keep
 
@@ -23,7 +27,9 @@ module Navvy
     end
 
     ##
-    # How often should a job be retried?
+    # How often should a job be retried? Will use the value stored in
+    # Navvy.configuration (defaults to 24), or -- for backwards compatibility
+    # -- Navvy::Job.max_attempts.
     #
     # @return [Fixnum] max_attempts
 
@@ -32,28 +38,28 @@ module Navvy
     end
 
     ##
-    # Should the job be kept?
+    # Should the job be kept? Will calculate if the keeptime has passed if
+    # @keep is a Fixnum. Otherwise, it'll just return the @keep value since
+    # it's probably a boolean.
     #
     # @return [true, false] keep
 
     def self.keep?
-      keep = (@keep || false)
-      return (Time.now + keep) >= Time.now if keep.is_a? Fixnum
-      keep
+      return (Time.now + @keep) >= Time.now if @keep.is_a? Fixnum
+      @keep
     end
-    
+
     ##
     # Run the job. Will delete the Navvy::Job record and return its return
     # value if it runs successfully unless Navvy::Job.keep is set. If a job
-    # fails, it'll update the Navvy::Job record to include the exception
-    # message it sent back and set the :failed_at date. Failed jobs never get
-    # deleted.
+    # fails, it'll call Navvy::Job#failed and pass the exception message.
+    # Failed jobs will _not_ get deleted.
     #
     # @example
     #   job = Navvy::Job.next # finds the next available job in the queue
     #   job.run               # runs the job and returns the job's return value
     #
-    # @return [String] return value of the called method.
+    # @return [String] return value or exception message of the called method.
 
     def run
       begin
@@ -65,12 +71,14 @@ module Navvy
         failed(exception.message)
       end
     end
-    
+
     ##
     # Retry the current job. Will add self to the queue again, giving the clone
-    # a parend_id equal to self.id.
+    # a parend_id equal to self.id. Also, the priority of the new job will be
+    # the same as its parent's and it'll set the :run_at date to N ** 4, where
+    # N is the times_failed count.
     #
-    # @return [true, false]
+    # @return [Navvy::Job] job the new job it created.
 
     def retry
       self.class.enqueue(
@@ -85,7 +93,7 @@ module Navvy
         })
       )
     end
-   
+
     ##
     # Check if the job has been run.
     #
@@ -96,16 +104,16 @@ module Navvy
     end
 
     ##
-    # Check how long it took for a job to complete or fail
+    # Check how long it took for a job to complete or fail.
     #
-    # @return [Time, Integer] time the time it took
+    # @return [Time, Integer] time the time it took.
 
     def duration
       ran? ? (completed_at || failed_at) - started_at : 0
     end
 
     ##
-    # Check if completed_at is set
+    # Check if completed_at is set.
     #
     # @return [true, false] set?
 
@@ -114,7 +122,7 @@ module Navvy
     end
 
     ##
-    # Check if failed_at is set
+    # Check if failed_at is set.
     #
     # @return [true, false] set?
 
@@ -123,7 +131,7 @@ module Navvy
     end
 
     ##
-    # Get the job arguments as an array
+    # Get the job arguments as an array.
     #
     # @return [array] arguments
 
