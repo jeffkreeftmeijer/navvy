@@ -85,14 +85,14 @@ module Navvy
         ) unless keep?
       end
     end
-    
+
     ##
     # The amount of pending, completed or failed jobs. If given a symbol of
     # :pending, :completed or :failed it will count the jobs with that status.
     # Otherwise it'll pass everything to super.
     #
     # @return [Integer] count
-    
+
     def self.count(*args)
       case args.first
       when :pending
@@ -104,13 +104,26 @@ module Navvy
         count(
           :completed_at => {'$ne' => nil}
         )
-      when :failed   
+      when :failed
         count(
           :failed_at => {'$ne' => nil}
         )
       else
         super(*args)
       end
+    end
+
+    ##
+    # Fetch all jobs. Will order the jobs by run_at and priority automatically
+    # but that can be overwritten
+    #
+    # @return [Array] jobs An array of jobs
+
+    def self.all(*args)
+      super(
+        {:order => 'run_at desc, priority desc'}.
+          merge(*(args.empty? ? args << {} : args))
+      )
     end
 
     ##

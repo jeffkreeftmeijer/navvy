@@ -73,6 +73,19 @@ module Navvy
     end
 
     ##
+    # Fetch all jobs. Will order the jobs by run_at and priority automatically
+    # but that can be overwritten
+    #
+    # @return [Array] jobs An array of jobs
+
+    def self.all(*args)
+      super(
+        {:order => [:run_at.desc, :priority.desc]}.
+          merge(*(args.empty? ? args << {} : args))
+      )
+    end
+
+    ##
     # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
     # false it'll delete every completed job, if it's a timestamp it'll only
     # delete completed jobs that have passed their keeptime.
@@ -86,7 +99,7 @@ module Navvy
         all(:completed_at.not => nil ).destroy unless keep?
       end
     end
-        
+
     def self.count(*args)
       case args.first
       when :pending
@@ -98,7 +111,7 @@ module Navvy
         all(
           :completed_at.not => nil
         ).count
-      when :failed   
+      when :failed
         all(
           :failed_at.not => nil
         ).count
@@ -106,7 +119,7 @@ module Navvy
         super(*args)
       end
     end
-    
+
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
@@ -118,7 +131,7 @@ module Navvy
         :started_at =>  Time.now
       })
     end
-    
+
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.

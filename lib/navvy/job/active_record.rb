@@ -72,7 +72,7 @@ module Navvy
         ) unless keep?
       end
     end
-    
+
     ##
     # The amount of pending, completed or failed jobs. If given a symbol of
     # :pending, :completed or :failed it will count the jobs with that status.
@@ -101,7 +101,20 @@ module Navvy
         super(*args)
       end
     end
-        
+
+    ##
+    # Fetch all jobs. Will order the jobs by run_at and priority automatically
+    # but that can be overwritten
+    #
+    # @return [Array] jobs An array of jobs
+
+    def self.all(*args)
+      super(
+        {:order => 'run_at desc, priority desc'}.
+          merge(*(args.empty? ? args << {} : args))
+      )
+    end
+
     ##
     # Mark the job as started. Will set started_at to the current time.
     #

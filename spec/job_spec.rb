@@ -226,6 +226,34 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '.all' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.create(:run_at => Time.now - 10, :method_name => 'last')
+      Navvy::Job.create(:run_at => Time.now - 10, :priority => 10, :method_name => 'second')
+      Navvy::Job.create(:run_at => Time.now, :method_name => 'first')
+    end
+
+    it 'should order the jobs by :run_at and :priority by default' do
+      jobs = Navvy::Job.all
+      jobs[0].method_name.should == 'first'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'last'
+    end
+
+    it 'should use the passed arguments' do
+      jobs = Navvy::Job.all(:limit => 2)
+      jobs.to_a.length.should == 2
+    end
+
+    it 'should not overwrite the passed :order' do
+      jobs = Navvy::Job.all(:order => 'created_at')
+      jobs[0].method_name.should == 'last'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'first'
+    end
+  end
+
   describe '#run' do
     it 'should pass the arguments' do
       delete_all_jobs
