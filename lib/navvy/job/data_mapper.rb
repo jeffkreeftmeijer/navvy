@@ -87,6 +87,13 @@ module Navvy
       end
     end
 
+    ##
+    # The amount of pending, completed or failed jobs. If given a symbol of
+    # :pending, :completed or :failed it will count the jobs with that status.
+    # Otherwise it'll pass everything to super.
+    #
+    # @return [Integer] count
+
     def self.count(*args)
       case args.first
       when :pending
@@ -105,6 +112,64 @@ module Navvy
       else
         super(*args)
       end
+    end
+
+    ##
+    # Find pending jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.pending
+      all(
+        :failed_at => nil,
+        :completed_at => nil,
+        :order => [:run_at.desc, :priority.desc],
+        :limit => 100
+      )
+    end
+
+    ##
+    # Find completed jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.completed
+      all(
+        :completed_at.not => nil,
+        :order => [:run_at.desc, :priority.desc],
+        :limit => 100
+      )
+    end
+
+    ##
+    # Find failed jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.failed
+      all(
+        :failed_at.not => nil,
+        :order => [:run_at.desc, :priority.desc],
+        :limit => 100
+      )
+    end
+
+    ##
+    # Find a job's family by the parent's id. Will order the jobs fetched by
+    # :run_at (desc) and :priority (desc) to serve the monitor.
+    #
+    # @param [ObjectId] id the parent's id
+    #
+    # @return [Array] jobs
+
+    def self.family(id)
+      all(
+        :conditions => ["(`id` = ? OR `parent_id` = ?)", id, id],
+        :order => [:run_at.desc, :priority.desc]
+      )
     end
 
     ##

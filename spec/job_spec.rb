@@ -226,6 +226,128 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '.pending' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.create(:run_at => Time.now - 10, :method_name => 'last')
+      Navvy::Job.create(:run_at => Time.now - 10, :priority => 10, :method_name => 'second')
+      Navvy::Job.create(:run_at => Time.now, :method_name => 'first')
+      Navvy::Job.create(:completed_at => Time.now)
+      Navvy::Job.create(:failed_at => Time.now)
+    end
+
+    it 'should fetch the pending jobs' do
+      jobs = Navvy::Job.pending
+      jobs.length.should == 3
+      jobs.each do |job|
+        job.status.should == :pending
+      end
+    end
+
+    it 'should order the jobs by :run_at and :priority' do
+      jobs = Navvy::Job.pending
+      jobs[0].method_name.should == 'first'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'last'
+    end
+
+    it 'should limit to 100' do
+      300.times do; Navvy::Job.create; end
+      Navvy::Job.pending.length.should == 100
+    end
+  end
+
+  describe '.completed' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.create(:completed_at => Time.now, :run_at => Time.now - 10, :method_name => 'last')
+      Navvy::Job.create(:completed_at => Time.now, :run_at => Time.now - 10, :priority => 10, :method_name => 'second')
+      Navvy::Job.create(:completed_at => Time.now, :run_at => Time.now, :method_name => 'first')
+      Navvy::Job.create
+      Navvy::Job.create(:failed_at => Time.now)
+    end
+
+    it 'should fetch the completed jobs' do
+      jobs = Navvy::Job.completed
+      jobs.length.should == 3
+      jobs.each do |job|
+        job.status.should == :completed
+      end
+    end
+
+    it 'should order the jobs by :run_at and :priority' do
+      jobs = Navvy::Job.completed
+      jobs[0].method_name.should == 'first'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'last'
+    end
+
+    it 'should limit to 100' do
+      300.times do; Navvy::Job.create(:completed_at => Time.now); end
+      Navvy::Job.completed.length.should == 100
+    end
+  end
+
+  describe '.failed' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.create(:failed_at => Time.now, :run_at => Time.now - 10, :method_name => 'last')
+      Navvy::Job.create(:failed_at => Time.now, :run_at => Time.now - 10, :priority => 10, :method_name => 'second')
+      Navvy::Job.create(:failed_at => Time.now, :run_at => Time.now, :method_name => 'first')
+      Navvy::Job.create
+      Navvy::Job.create(:completed_at => Time.now)
+    end
+
+    it 'should fetch the failed jobs' do
+      jobs = Navvy::Job.failed
+      jobs.length.should == 3
+      jobs.each do |job|
+        job.status.should == :failed
+      end
+    end
+
+    it 'should order the jobs by :run_at and :priority' do
+      jobs = Navvy::Job.failed
+      jobs[0].method_name.should == 'first'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'last'
+    end
+
+    it 'should limit to 100' do
+      300.times do; Navvy::Job.create(:failed_at => Time.now); end
+      Navvy::Job.failed.length.should == 100
+    end
+  end
+
+  describe '.family' do
+    before(:each) do
+      delete_all_jobs
+      @parent = Navvy::Job.create(:run_at => Time.now - 10, :method_name => 'last')
+      Navvy::Job.create(:parent_id => @parent.id, :run_at => Time.now - 10, :priority => 10, :method_name => 'second')
+      Navvy::Job.create(:parent_id => @parent.id, :run_at => Time.now, :method_name => 'first')
+      Navvy::Job.create
+    end
+
+    it 'should fetch the parent and its children' do
+      jobs = Navvy::Job.family(@parent.id).to_a
+      jobs.length.should == 3
+      jobs.each do |job|
+        if(job.parent_id)
+          job.parent_id.should == @parent.id
+        else
+          job.id.should == @parent.id
+        end
+      end
+    end
+
+    it 'should order the jobs by :run_at and :priority' do
+      jobs = Navvy::Job.family(@parent.id).to_a
+      jobs[0].method_name.should == 'first'
+      jobs[1].method_name.should == 'second'
+      jobs[2].method_name.should == 'last'
+    end
+  end
+
   describe '#run' do
     it 'should pass the arguments' do
       delete_all_jobs

@@ -13,39 +13,22 @@ module Navvy
     end
 
     get '/pending' do
-      @jobs = Job.all(
-        :failed_at => nil,
-        :completed_at => nil,
-        :order => 'priority desc, run_at desc',
-        :limit => 250
-      )
+      @jobs = Job.pending
       haml :index, :layout => true
     end
 
     get '/completed' do
-      @jobs = Job.all(
-        :completed_at => {'$ne' => nil},
-        :order => 'priority desc, run_at desc',
-        :limit => 250
-      )
+      @jobs = Job.completed
       haml :index, :layout => true
     end
 
     get '/failed' do
-      @jobs = Job.all(
-        :failed_at => {'$ne' => nil},
-        :order => 'priority desc, run_at desc',
-        :limit => 250
-      )
+      @jobs = Job.failed
       haml :index, :layout => true
     end
 
     get '/:id' do
-      @jobs = Job.all(
-        '$where' => "this._id == '#{params[:id]}' || this.parent_id == '#{params[:id]}'",
-        :order => 'priority desc, run_at desc',
-        :limit => 100
-      )
+      @jobs = Job.family(params[:id])
       haml :show
     end
   end

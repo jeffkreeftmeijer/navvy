@@ -94,6 +94,57 @@ module Navvy
     end
 
     ##
+    # Find pending jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.pending
+      filter(
+        :failed_at => nil,
+        :completed_at => nil
+      ).order(:run_at.desc, :priority.desc).first(100)
+    end
+
+    ##
+    # Find completed jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.completed
+      filter(
+        '`completed_at` IS NOT NULL',
+      ).order(:run_at.desc, :priority.desc).first(100)
+    end
+
+    ##
+    # Find failed jobs. Will order the jobs fetched by :run_at (desc) and
+    # :priority (desc) and limit them to 100 to serve the monitor.
+    #
+    # @return [Array] jobs
+
+    def self.failed
+      filter(
+        '`failed_at` IS NOT NULL',
+      ).order(:run_at.desc, :priority.desc).first(100)
+    end
+
+    ##
+    # Find a job's family by the parent's id. Will order the jobs fetched by
+    # :run_at (desc) and :priority (desc) to serve the monitor.
+    #
+    # @param [ObjectId] id the parent's id
+    #
+    # @return [Array] jobs
+
+    def self.family(id)
+      filter(
+        "(`id` == '#{id}' OR `parent_id` == '#{id}')"
+      ).order(:run_at.desc, :priority.desc)
+    end
+
+    ##
     # Mark the job as started. Will set started_at to the current time.
     #
     # @return [true, false] update_attributes the result of the

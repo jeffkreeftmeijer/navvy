@@ -41,7 +41,7 @@ module Navvy
       return (Time.now + keep) >= Time.now if keep.is_a? Fixnum
       keep
     end
-    
+
     ##
     # Run the job. Will delete the Navvy::Job record and return its return
     # value if it runs successfully unless Navvy::Job.keep is set. If a job
@@ -65,7 +65,7 @@ module Navvy
         failed(exception.message)
       end
     end
-    
+
     ##
     # Retry the current job. Will add self to the queue again, giving the clone
     # a parend_id equal to self.id.
@@ -85,7 +85,7 @@ module Navvy
         })
       )
     end
-   
+
     ##
     # Check if the job has been run.
     #
