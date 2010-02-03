@@ -73,19 +73,6 @@ module Navvy
     end
 
     ##
-    # Fetch all jobs. Will order the jobs by run_at and priority automatically
-    # but that can be overwritten
-    #
-    # @return [Array] jobs An array of jobs
-
-    def self.all(*args)
-      super(
-        {:order => [:run_at.desc, :priority.desc]}.
-          merge(*(args.empty? ? args << {} : args))
-      )
-    end
-
-    ##
     # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
     # false it'll delete every completed job, if it's a timestamp it'll only
     # delete completed jobs that have passed their keeptime.

@@ -94,22 +94,6 @@ module Navvy
     end
 
     ##
-    # Fetch all jobs. Will order the jobs by run_at and priority automatically
-    # but that can be overwritten
-    #
-    # @return [Array] jobs An array of jobs
-
-    def self.all(*args)
-      order = 'run_at desc, priority desc'
-      order = args.first[:order] if args.first && args.first[:order]
-      if args.first && limit = args.first[:limit]
-        order(order.lit).limit(limit)
-      else
-        order(order.lit).all
-      end
-    end
-
-    ##
     # Mark the job as started. Will set started_at to the current time.
     #
     # @return [true, false] update_attributes the result of the
