@@ -252,7 +252,7 @@ describe 'Navvy::Job' do
     end
 
     it 'should limit to 100' do
-      300.times do; Navvy::Job.create; end
+      100.times do; Navvy::Job.create; end
       Navvy::Job.pending.length.should == 100
     end
   end
@@ -283,7 +283,7 @@ describe 'Navvy::Job' do
     end
 
     it 'should limit to 100' do
-      300.times do; Navvy::Job.create(:completed_at => Time.now); end
+      100.times do; Navvy::Job.create(:completed_at => Time.now); end
       Navvy::Job.completed.length.should == 100
     end
   end
@@ -314,7 +314,7 @@ describe 'Navvy::Job' do
     end
 
     it 'should limit to 100' do
-      300.times do; Navvy::Job.create(:failed_at => Time.now); end
+      100.times do; Navvy::Job.create(:failed_at => Time.now); end
       Navvy::Job.failed.length.should == 100
     end
   end
