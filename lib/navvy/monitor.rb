@@ -9,8 +9,7 @@ module Navvy
     set :static,  true
 
     get '/' do
-      @jobs = Job.all(:order => 'run_at desc, priority desc', :limit => 250)
-      haml :index, :layout => true
+      redirect '/pending'
     end
 
     get '/pending' do
