@@ -1,5 +1,9 @@
-class RailsLogger
-  def self.info(text);end
-end
+class Rails
+  def self.logger
+    Logger
+  end
 
-RAILS_DEFAULT_LOGGER = RailsLogger
+  class Logger
+    def self.info(text);end
+  end
+end

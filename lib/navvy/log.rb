@@ -65,9 +65,9 @@ module Navvy
       when :rails
         raise(
           LoggerNotFound,
-          'RAILS_DEFAULT_LOGGER could not be found. No logs were created.'
-        ) unless defined? RAILS_DEFAULT_LOGGER.info
-        RAILS_DEFAULT_LOGGER.info(message)
+          'Rails.logger could not be found. No logs were created.'
+        ) unless defined? Rails.logger.info
+        Rails.logger.info(message)
       end
     end
   end

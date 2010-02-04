@@ -13,9 +13,9 @@ describe Navvy::Log do
         lambda { Navvy::Log.info('123') }.should raise_error
       end
 
-      it 'should pass the log to RAILS_DEFAULT_LOGGER' do
+      it 'should pass the log to Rails.logger' do
         require File.expand_path(File.dirname(__FILE__) + '/setup/rails_default_logger')
-        RAILS_DEFAULT_LOGGER.should_receive(:info).with('123')
+        Rails.logger.should_receive(:info).with('123')
         Navvy::Log.info('123')
       end
     end
@@ -42,7 +42,7 @@ describe Navvy::Log do
       end
 
       it 'should pass the log to justlogging' do
-        RAILS_DEFAULT_LOGGER.should_receive(:info).with('123')
+        Rails.logger.should_receive(:info).with('123')
         Justlogging.should_receive(:log).with('123')
         Navvy::Log.info('123')
       end
@@ -54,7 +54,7 @@ describe Navvy::Log do
       end
 
       it 'should not log' do
-        RAILS_DEFAULT_LOGGER.should_not_receive(:info)
+        Rails.logger.should_not_receive(:info)
         Justlogging.should_not_receive(:log)
         Navvy::Log.info('123')
       end
