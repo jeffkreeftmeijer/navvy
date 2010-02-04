@@ -205,6 +205,14 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '.delete_all' do
+    it 'should delete all jobs' do
+      3.times do; Navvy::Job.create; end
+      Navvy::Job.delete_all
+      job_count.should == 0
+    end
+  end
+
   describe '#run' do
     it 'should pass the arguments' do
       delete_all_jobs
@@ -269,7 +277,7 @@ describe 'Navvy::Job' do
       end
     end
   end
-  
+
   describe '#started' do
     before(:each) do
       delete_all_jobs
@@ -429,17 +437,17 @@ describe 'Navvy::Job' do
 
       @failed_job.times_failed.should == 3
     end
-    
+
      it 'should return 2 when having 1 failed and one pending child' do
         Navvy::Job.create(
           :failed_at => Time.now,
           :parent_id => @failed_job.id
         )
-        
+
         Navvy::Job.create(
           :parent_id => @failed_job.id
         )
-        
+
         @failed_job.times_failed.should == 2
       end
 

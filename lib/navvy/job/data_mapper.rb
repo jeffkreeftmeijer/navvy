@@ -85,7 +85,16 @@ module Navvy
         all(:completed_at.not => nil ).destroy unless keep?
       end
     end
-    
+
+    ##
+    # Deletes all jobs.
+    #
+    # @return [true, false] deleted?
+
+    def self.delete_all
+      Navvy::Job.all.destroy
+    end
+
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
@@ -97,7 +106,7 @@ module Navvy
         :started_at =>  Time.now
       })
     end
-    
+
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.

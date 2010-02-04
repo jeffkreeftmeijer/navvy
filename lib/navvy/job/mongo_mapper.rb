@@ -85,7 +85,7 @@ module Navvy
         ) unless keep?
       end
     end
-    
+
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
@@ -97,7 +97,7 @@ module Navvy
         :started_at =>  Time.now
       })
     end
-    
+
     ##
     # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.
