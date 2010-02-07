@@ -1,31 +1,34 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe 'Navvy::Job' do
-  
+
   describe '.keep?' do
     after(:each) do
       Navvy::Job.keep = false
+      Navvy.configure do |config|
+        config.keep_jobs = false
+      end
     end
-    
+
     describe 'when configured using Navvy::Job.keep=' do
       it 'should return false' do
         Navvy::Job.keep = false
         Navvy::Job.keep?.should == false
-      end 
+      end
 
       it 'should return true' do
         Navvy::Job.keep = true
         Navvy::Job.keep?.should == true
       end
-    end  
-    
+    end
+
     describe 'when configured with Navvy.configure' do
       it 'should return false' do
         Navvy.configure do |config|
           config.keep_jobs = false
         end
         Navvy::Job.keep?.should == false
-      end 
+      end
 
       it 'should return true' do
         Navvy.configure do |config|
@@ -35,7 +38,7 @@ describe 'Navvy::Job' do
       end
     end
   end
-  
+
   describe '.enqueue' do
     before(:each) do
       delete_all_jobs

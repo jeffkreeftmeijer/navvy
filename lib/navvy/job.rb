@@ -45,8 +45,8 @@ module Navvy
     # @return [true, false] keep
 
     def self.keep?
-      return (Time.now + @keep) >= Time.now if @keep.is_a? Fixnum
-      @keep
+      return (Time.now + self.keep) >= Time.now if self.keep.is_a? Fixnum
+      self.keep
     end
 
     ##
