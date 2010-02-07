@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'daemons'
+
 module Navvy
   class Worker
     class << self
@@ -12,7 +15,7 @@ module Navvy
     def self.sleep_time
       @sleep_time || Navvy.configuration.sleep_time
     end
-    
+
     ##
     # Start the worker.
 
@@ -44,6 +47,15 @@ module Navvy
           "(#{job.args.join(', ')}) => #{(job.exception || result).to_s}",
           job.failed? ? 31 : 32
         )
+      end
+    end
+
+    ##
+    # Daemonize the worker
+
+    def self.daemonize(args)
+      Daemons.run_proc('navvy', :ARGV => args) do
+        Navvy::Worker.start
       end
     end
   end
