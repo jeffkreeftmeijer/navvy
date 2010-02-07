@@ -5,6 +5,9 @@ describe 'Navvy::Job' do
   describe '.keep?' do
     after(:each) do
       Navvy::Job.keep = false
+      Navvy.configure do |config|
+        config.keep_jobs = false
+      end
     end
     
     describe 'when configured using Navvy::Job.keep=' do
