@@ -1,25 +1,26 @@
 require 'rubygems'
-require 'mongo_mapper'
+require 'dm-core'
 
 module Navvy
   class Job
-    include MongoMapper::Document
+    include DataMapper::Resource
     class << self
       attr_writer :limit, :keep, :max_attempts
     end
 
-    key :object,        String
-    key :method_name,   Symbol
-    key :arguments,     String
-    key :priority,      Integer, :default => 0
-    key :return,        String
-    key :exception,     String
-    key :parent_id,     ObjectId
-    key :created_at,    Time
-    key :run_at,        Time
-    key :started_at,    Time
-    key :completed_at,  Time
-    key :failed_at,     Time
+    property :id,            Serial
+    property :object,        String
+    property :method_name,   String
+    property :arguments,     String
+    property :priority,      Integer, :default => 0
+    property :return,        String
+    property :exception,     String
+    property :parent_id,     Integer
+    property :created_at,    Time
+    property :run_at,        Time
+    property :started_at,    Time
+    property :completed_at,  Time
+    property :failed_at,     Time
 
     ##
     # Default limit of jobs to be fetched.
@@ -55,7 +56,7 @@ module Navvy
 
     def self.keep?
       keep = (@keep || false)
-      return keep.from_now >= Time.now if keep.is_a? Fixnum
+      return (Time.now + keep) >= Time.now if keep.is_a? Fixnum
       keep
     end
 
@@ -76,15 +77,18 @@ module Navvy
         args.pop if args.last.empty?
       end
 
-      create(
+      new_job = self.new
+      new_job.attributes = {
         :object =>      object.to_s,
-        :method_name => method_name.to_sym,
+        :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
-      )
+      }
+      new_job.save
+      new_job
     end
 
     ##
@@ -102,13 +106,13 @@ module Navvy
       all(
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at =>        {'$lte' => Time.now},
-        :order =>         'priority desc, created_at asc',
+        :run_at.lte =>    Time.now,
+        :order =>         [ :priority.desc, :created_at.asc ],
         :limit =>         limit
       )
     end
 
-    ##
+    ##                     
     # Clean up jobs that we don't need to keep anymore. If Navvy::Job.keep is
     # false it'll delete every completed job, if it's a timestamp it'll only
     # delete completed jobs that have passed their keeptime.
@@ -117,13 +121,9 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        delete_all(
-          :completed_at => {'$lte' => keep.ago}
-        )
+        all(:completed_at.lte => (Time.now - keep)).destroy
       else
-        delete_all(
-          :completed_at => {'$ne' => nil}
-        ) unless keep?
+        all(:completed_at.not => nil ).destroy unless keep?
       end
     end
 
@@ -142,11 +142,11 @@ module Navvy
 
     def run
       begin
-        update_attributes(:started_at => Time.now)
+        update(:started_at => Time.now)
         if args.empty?
-          result = object.constantize.send(method_name)
+          result = Kernel.const_get(object).send(method_name)
         else
-          result = object.constantize.send(method_name, *args)
+          result = Kernel.const_get(object).send(method_name, *args)
         end
         Navvy::Job.keep? ? completed : destroy
         result
@@ -165,14 +165,15 @@ module Navvy
     # update_attributes call
 
     def completed(return_value = nil)
-      update_attributes({
+      update(
         :completed_at =>  Time.now,
         :return =>        return_value
-      })
+      )
     end
 
     ##
     # Mark the job as failed. Will set failed_at to the current time and
+    # optionally add the exception message if provided.
     # optionally add the exception message if provided. Also, it will retry
     # the job unless max_attempts has been reached.
     #
@@ -183,7 +184,7 @@ module Navvy
 
     def failed(message = nil)
       self.retry unless times_failed >= self.class.max_attempts
-      update_attributes(
+      update(
         :failed_at => Time.now,
         :exception => message
       )
@@ -217,10 +218,9 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      self.class.count(
-        :failed_at => {'$ne' => nil},
-        '$where' => "this._id == '#{i}' || this.parent_id == '#{i}'"
-      )
+      self.class.all(
+        :conditions => ["(`id` = ? OR `parent_id` = ?) AND `failed_at` IS NOT NULL", i, i]
+      ).count
     end
 
     ##
@@ -230,6 +230,24 @@ module Navvy
 
     def ran?
       completed? || failed?
+    end
+
+    ##
+    # Check if completed_at is set
+    #
+    # @return [true, false] set?
+
+    def completed_at?
+      !completed_at.nil?
+    end
+
+    ##
+    # Check if failed_at is set
+    #
+    # @return [true, false] set?
+
+    def failed_at?
+      !failed_at.nil?
     end
 
     ##

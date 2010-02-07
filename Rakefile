@@ -12,11 +12,9 @@ begin
     gem.authors = ["Jeff Kreeftmeijer"]
     gem.add_development_dependency "rspec",                 ">= 1.2.9"
     gem.add_development_dependency "yard",                  ">= 0.5.2"
-    gem.add_development_dependency "metric_fu",             ">= 1.1.6"
-    gem.add_development_dependency "machinist",             ">= 1.0.6"
     gem.add_development_dependency "mongo_mapper",          ">= 0.6.10"
-    gem.add_development_dependency "machinist_mongomapper", ">= 0.9.7"
     gem.add_development_dependency "sequel",                ">= 3.8.0"
+    gem.add_development_dependency "sqlite3-ruby",          ">= 1.2.5"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -26,22 +24,26 @@ end
 require 'spec/rake/spectask'
 
 task :spec do
-  ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel'].each do |spec|
+  ['spec:active_record', 'spec:mongo_mapper', 'spec:sequel', 'spec:data_mapper'].each do |spec|
     Rake::Task[spec].invoke
   end
 end
 
 namespace :spec do
   Spec::Rake::SpecTask.new(:active_record) do |spec|
-    spec.spec_files = FileList['spec/job/active_record_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/active_record.rb', 'spec/*_spec.rb']
   end
 
   Spec::Rake::SpecTask.new(:mongo_mapper) do |spec|
-    spec.spec_files = FileList['spec/job/mongo_mapper_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/mongo_mapper.rb', 'spec/*_spec.rb']
   end
 
   Spec::Rake::SpecTask.new(:sequel) do |spec|
-    spec.spec_files = FileList['spec/job/sequel_spec.rb', 'spec/*_spec.rb']
+    spec.spec_files = FileList['spec/setup/sequel.rb', 'spec/*_spec.rb']
+  end
+
+  Spec::Rake::SpecTask.new(:data_mapper) do |spec|
+    spec.spec_files = FileList['spec/setup/data_mapper.rb', 'spec/*_spec.rb']
   end
 end
 
@@ -62,5 +64,3 @@ rescue LoadError
     abort "YARD is not available. In order to run yardoc, you must: sudo gem install yard"
   end
 end
-
-require 'metric_fu'

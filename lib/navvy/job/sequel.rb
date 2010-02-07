@@ -5,17 +5,34 @@ require 'yaml'
 module Navvy
   class Job < Sequel::Model
     class << self
-      attr_writer :limit
-      attr_accessor :keep
+      attr_writer :limit, :keep, :max_attempts
     end
 
     ##
-    # Default limit of jobs to be fetched
+    # Default limit of jobs to be fetched.
     #
     # @return [Integer] limit
 
     def self.limit
-      @limit || 100
+      @limit || Navvy.configuration.job_limit
+    end
+
+    ##
+    # If and how long the jobs should be kept.
+    #
+    # @return [Fixnum, true, false] keep
+
+    def self.keep
+      @keep || Navvy.configuration.keep_jobs
+    end
+
+    ##
+    # How often should a job be retried?
+    #
+    # @return [Fixnum] max_attempts
+
+    def self.max_attempts
+      @max_attempts || Navvy.configuration.max_attempts
     end
 
     ##
@@ -33,18 +50,26 @@ module Navvy
     # Add a job to the job queue.
     #
     # @param [Object] object the object you want to run a method from
-    # @param [Symbol, String] method_name the name of the method you want to 
+    # @param [Symbol, String] method_name the name of the method you want to
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
     # @return [true, false]
 
     def self.enqueue(object, method_name, *args)
+      options = {}
+      if args.last.is_a?(Hash)
+        options = args.last.delete(:job_options) || {}
+        args.pop if args.last.empty?
+      end
+
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
-        :arguments =>   YAML::dump(args),
-        :run_at =>      Time.now,
+        :arguments =>   args.to_yaml,
+        :priority =>    options[:priority] || 0,
+        :parent_id =>   options[:parent_id],
+        :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
       )
     end
@@ -64,7 +89,7 @@ module Navvy
       filter(
         '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
         Time.now
-      ).order(:created_at).first(limit)
+      ).order(:priority.desc, :created_at).first(limit)
     end
 
     ##
@@ -81,7 +106,7 @@ module Navvy
         filter('`completed_at` IS NOT NULL').delete unless keep?
       end
     end
-    
+
     ##
     # Run the job. Will delete the Navvy::Job record and return its return
     # value if it runs successfully unless Navvy::Job.keep is set. If a job
@@ -105,62 +130,97 @@ module Navvy
         failed(exception.message)
       end
     end
-    
+
     ##
-    # Mark the job as completed. Will set completed_at to the current time and 
+    # Mark the job as completed. Will set completed_at to the current time and
     # optionally add the return value if provided.
     #
     # @param [String] return_value the return value you want to store.
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
-    
+
     def completed(return_value = nil)
       update({
         :completed_at =>  Time.now,
         :return =>        return_value
       })
     end
-    
+
     ##
-    # Mark the job as failed. Will set failed_at to the current time and 
-    # optionally add the exception message if provided.
+    # Mark the job as failed. Will set failed_at to the current time and
+    # optionally add the exception message if provided. Also, it will retry
+    # the job unless max_attempts has been reached.
     #
     # @param [String] exception the exception message you want to store.
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
-    
+
     def failed(message = nil)
-      update({
+      self.retry unless times_failed >= self.class.max_attempts
+      update(
         :failed_at => Time.now,
         :exception => message
-      })
+      )
     end
-    
+
     ##
-    # Check if the job has been run. 
+    # Retry the current job. Will add self to the queue again, giving the clone
+    # a parend_id equal to self.id.
+    #
+    # @return [true, false]
+
+    def retry
+      self.class.enqueue(
+        object,
+        method_name,
+        *(args << {
+          :job_options => {
+            :parent_id => parent_id || id,
+            :run_at => Time.now + times_failed ** 4,
+            :priority => priority
+          }
+        })
+      )
+    end
+
+    ##
+    # Check how many times the job has failed. Will try to find jobs with a
+    # parent_id that's the same as self.id and count them
+    #
+    # @return [Integer] count the amount of times the job has failed
+
+    def times_failed
+      i = parent_id || id
+      self.class.filter(
+        "(`id` == '#{i}' OR `parent_id` == '#{i}') AND `failed_at` IS NOT NULL"
+      ).count
+    end
+
+    ##
+    # Check if the job has been run.
     #
     # @return [true, false] ran
-    
+
     def ran?
       completed? || failed?
     end
-    
+
     ##
     # Check how long it took for a job to complete or fail
     #
     # @return [Time, Integer] time the time it took
-    
+
     def duration
       ran? ? (completed_at || failed_at) - started_at : 0
     end
-    
+
     ##
     # Check if completed_at is set
     #
     # @return [true, false] set?
-    
+
     def completed_at?
       !completed_at.nil?
     end
@@ -169,31 +229,31 @@ module Navvy
     # Check if failed_at is set
     #
     # @return [true, false] set?
-    
+
     def failed_at?
       !failed_at.nil?
     end
-    
+
     ##
     # Get the job arguments as an array
     #
     # @return [array] arguments
-    
+
     def args
-      arguments.first.is_a?(Array) ? arguments : YAML.load(arguments)
+      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
     end
-    
+
     ##
     # Get the job status
     #
     # @return [:pending, :completed, :failed] status
-    
+
     def status
       return :completed if completed?
       return :failed if failed?
       :pending
     end
-    
+
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
   end

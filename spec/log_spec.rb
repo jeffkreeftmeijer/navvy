@@ -8,18 +8,13 @@ describe Navvy::Log do
       before do
         Navvy::Log.logger = :rails
       end
-      
+
       it 'should raise an error when the logger can not be found' do
         lambda { Navvy::Log.info('123') }.should raise_error
       end
-      
-      it 'should pass the log to RAILS_DEFAULT_LOGGER' do
-        class RailsLogger
-          def self.info(text);end
-        end
 
-        RAILS_DEFAULT_LOGGER = RailsLogger
-        
+      it 'should pass the log to RAILS_DEFAULT_LOGGER' do
+        require File.expand_path(File.dirname(__FILE__) + '/setup/rails_default_logger')
         RAILS_DEFAULT_LOGGER.should_receive(:info).with('123')
         Navvy::Log.info('123')
       end
@@ -29,16 +24,13 @@ describe Navvy::Log do
       before do
         Navvy::Log.logger = :justlogging
       end
-      
+
       it 'should raise an error when the logger can not be found' do
         lambda { Navvy::Log.info('123') }.should raise_error
       end
-      
+
       it 'should pass the log to justlogging' do
-        class Justlogging
-          def self.log(text);end
-        end
-        
+        require File.expand_path(File.dirname(__FILE__) + '/setup/justlogging')
         Justlogging.should_receive(:log).with('123')
         Navvy::Log.info('123')
       end
@@ -55,12 +47,12 @@ describe Navvy::Log do
         Navvy::Log.info('123')
       end
     end
-    
+
     describe 'when not using any logger' do
       before do
         Navvy::Log.logger = nil
       end
-      
+
       it 'should not log' do
         RAILS_DEFAULT_LOGGER.should_not_receive(:info)
         Justlogging.should_not_receive(:log)
