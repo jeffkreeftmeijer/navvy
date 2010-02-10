@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "generators/navvy/navvy_generator.rb",
      "generators/navvy/templates/migration.rb",
+     "generators/navvy/templates/script",
      "lib/generators/navvy_generator.rb",
      "lib/navvy.rb",
      "lib/navvy/configuration.rb",
