@@ -4,8 +4,8 @@ class NavvyGenerator < Rails::Generator::Base
       options = {
         :migration_file_name => 'create_jobs'
       }
-      
       m.migration_template 'migration.rb', 'db/migrate', options
+      m.template 'script', 'script/navvy', :chmod => 0755
     end
   end
   

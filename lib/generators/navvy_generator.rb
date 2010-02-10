@@ -11,6 +11,10 @@ class NavvyGenerator < Rails::Generators::Base
       'migration.rb',
       'db/migrate/create_navvy_table.rb'
     )
+    
+    # @jkreeftmeijer
+    # I dont know how this generator works, this is what needs to happen though:
+    # => template 'script', 'script/navvy', :chmod => 0755
   end
   
   protected
