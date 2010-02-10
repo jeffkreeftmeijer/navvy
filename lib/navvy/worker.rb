@@ -53,8 +53,9 @@ module Navvy
     ##
     # Daemonize the worker
 
-    def self.daemonize(args)
-      Daemons.run_proc('navvy', :ARGV => args) do
+    def self.daemonize(*args)
+      options = args.empty? ? {} : {:ARGV => args}
+      Daemons.run_proc('navvy', options) do
         Navvy::Worker.start
       end
     end
