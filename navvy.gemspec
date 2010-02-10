@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{navvy}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-02-08}
+  s.date = %q{2010-02-10}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -25,9 +25,11 @@ Gem::Specification.new do |s|
      "VERSION",
      "generators/navvy/navvy_generator.rb",
      "generators/navvy/templates/migration.rb",
+     "generators/navvy/templates/script",
      "lib/generators/navvy_generator.rb",
      "lib/navvy.rb",
      "lib/navvy/configuration.rb",
+     "lib/navvy/job.rb",
      "lib/navvy/job/active_record.rb",
      "lib/navvy/job/data_mapper.rb",
      "lib/navvy/job/mongo_mapper.rb",

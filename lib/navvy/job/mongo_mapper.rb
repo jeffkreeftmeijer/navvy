@@ -4,9 +4,6 @@ require 'mongo_mapper'
 module Navvy
   class Job
     include MongoMapper::Document
-    class << self
-      attr_writer :limit, :keep, :max_attempts
-    end
 
     key :object,        String
     key :method_name,   Symbol
@@ -20,44 +17,6 @@ module Navvy
     key :started_at,    Time
     key :completed_at,  Time
     key :failed_at,     Time
-
-    ##
-    # Default limit of jobs to be fetched.
-    #
-    # @return [Integer] limit
-
-    def self.limit
-      @limit || Navvy.configuration.job_limit
-    end
-
-    ##
-    # If and how long the jobs should be kept.
-    #
-    # @return [Fixnum, true, false] keep
-
-    def self.keep
-      @keep || Navvy.configuration.keep_jobs
-    end
-
-    ##
-    # How often should a job be retried?
-    #
-    # @return [Fixnum] max_attempts
-
-    def self.max_attempts
-      @max_attempts || Navvy.configuration.max_attempts
-    end
-
-    ##
-    # Should the job be kept?
-    #
-    # @return [true, false] keep
-
-    def self.keep?
-      keep = (self.keep || false)
-      return keep.from_now >= Time.now if keep.is_a? Fixnum
-      keep
-    end
 
     ##
     # Add a job to the job queue.
@@ -128,31 +87,15 @@ module Navvy
     end
 
     ##
-    # Run the job. Will delete the Navvy::Job record and return its return
-    # value if it runs successfully unless Navvy::Job.keep is set. If a job
-    # fails, it'll update the Navvy::Job record to include the exception
-    # message it sent back and set the :failed_at date. Failed jobs never get
-    # deleted.
+    # Mark the job as started. Will set started_at to the current time.
     #
-    # @example
-    #   job = Navvy::Job.next # finds the next available job in the queue
-    #   job.run               # runs the job and returns the job's return value
-    #
-    # @return [String] return value of the called method.
+    # @return [true, false] update_attributes the result of the
+    # update_attributes call
 
-    def run
-      begin
-        update_attributes(:started_at => Time.now)
-        if args.empty?
-          result = object.constantize.send(method_name)
-        else
-          result = object.constantize.send(method_name, *args)
-        end
-        Navvy::Job.keep? ? completed : destroy
-        result
-      rescue Exception => exception
-        failed(exception.message)
-      end
+    def started
+      update_attributes({
+        :started_at =>  Time.now
+      })
     end
 
     ##
@@ -190,26 +133,6 @@ module Navvy
     end
 
     ##
-    # Retry the current job. Will add self to the queue again, giving the clone
-    # a parend_id equal to self.id.
-    #
-    # @return [true, false]
-
-    def retry
-      self.class.enqueue(
-        object,
-        method_name,
-        *(args << {
-          :job_options => {
-            :parent_id => parent_id || id,
-            :run_at => Time.now + times_failed ** 4,
-            :priority => priority
-          }
-        })
-      )
-    end
-
-    ##
     # Check how many times the job has failed. Will try to find jobs with a
     # parent_id that's the same as self.id and count them
     #
@@ -222,46 +145,7 @@ module Navvy
         '$where' => "this._id == '#{i}' || this.parent_id == '#{i}'"
       )
     end
-
-    ##
-    # Check if the job has been run.
-    #
-    # @return [true, false] ran
-
-    def ran?
-      completed? || failed?
-    end
-
-    ##
-    # Check how long it took for a job to complete or fail
-    #
-    # @return [Time, Integer] time the time it took
-
-    def duration
-      ran? ? (completed_at || failed_at) - started_at : 0
-    end
-
-    ##
-    # Get the job arguments as an array
-    #
-    # @return [array] arguments
-
-    def args
-      arguments.is_a?(Array) ? arguments : YAML.load(arguments)
-    end
-
-    ##
-    # Get the job status
-    #
-    # @return [:pending, :completed, :failed] status
-
-    def status
-      return :completed if completed?
-      return :failed if failed?
-      :pending
-    end
-
-    alias_method :completed?, :completed_at?
-    alias_method :failed?,    :failed_at?
   end
 end
+
+require File.expand_path(File.dirname(__FILE__) + '/../job')

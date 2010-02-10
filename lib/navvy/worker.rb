@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'daemons'
+
 module Navvy
   class Worker
     class << self
@@ -12,7 +15,7 @@ module Navvy
     def self.sleep_time
       @sleep_time || Navvy.configuration.sleep_time
     end
-    
+
     ##
     # Start the worker.
 
@@ -46,5 +49,34 @@ module Navvy
         )
       end
     end
+
+    ##
+    # Daemonize the worker
+
+    def self.daemonize(*args)
+      if defined?(ActiveRecord)
+        # Sets ActiveRecord's logger to Navvy a new Logger instance
+        ActiveRecord::Base.logger = Logger.new(STDOUT)
+      end
+      
+      # If #daemonize does not receive any arguments, the options variable will
+      # contain an empty hash, and the ARGV of the environment will be used instead
+      # of the :ARGV options from Daemons#run_proc. However, if the *args param has been set
+      # this will be used instead of the environment's ARGV for the Daemons.
+      options = args.empty? ? {} : {:ARGV => args}
+      
+      # Finally, the directory store mode will be set to normal and the Daemons PID file
+      # will be stored inside tmp/pids of the application.
+      options.merge!({:dir_mode => :normal, :dir => 'tmp/pids'})
+      
+      # Ensures that the tmp/pids folder exists so that the process id file can properly be stored
+      %x(mkdir -p tmp/pids)
+      
+      # Runs the Navvy Worker inside a Daemon
+      Daemons.run_proc('navvy', options) do
+        Navvy::Worker.start
+      end
+    end
+      
   end
 end

@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe 'Navvy::Job' do
-  
   describe '.keep?' do
     after(:each) do
       Navvy::Job.keep = false
@@ -9,26 +8,26 @@ describe 'Navvy::Job' do
         config.keep_jobs = false
       end
     end
-    
+
     describe 'when configured using Navvy::Job.keep=' do
       it 'should return false' do
         Navvy::Job.keep = false
         Navvy::Job.keep?.should == false
-      end 
+      end
 
       it 'should return true' do
         Navvy::Job.keep = true
         Navvy::Job.keep?.should == true
       end
-    end  
-    
+    end
+
     describe 'when configured with Navvy.configure' do
       it 'should return false' do
         Navvy.configure do |config|
           config.keep_jobs = false
         end
         Navvy::Job.keep?.should == false
-      end 
+      end
 
       it 'should return true' do
         Navvy.configure do |config|
@@ -38,7 +37,7 @@ describe 'Navvy::Job' do
       end
     end
   end
-  
+
   describe '.enqueue' do
     before(:each) do
       delete_all_jobs
@@ -177,6 +176,14 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe '.delete_all' do
+    it 'should delete all jobs' do
+      3.times do; Navvy::Job.create; end
+      Navvy::Job.delete_all
+      job_count.should == 0
+    end
+  end
+
   describe '#run' do
     it 'should pass the arguments' do
       delete_all_jobs
@@ -239,6 +246,19 @@ describe 'Navvy::Job' do
         jobs.first.started_at.should be_instance_of Time
         jobs.first.failed_at.should be_instance_of Time
       end
+    end
+  end
+
+  describe '#started' do
+    before(:each) do
+      delete_all_jobs
+      Navvy::Job.enqueue(Cow, :speak)
+    end
+
+    it 'should update the jobs started_at date' do
+      jobs = Navvy::Job.next
+      jobs.first.started
+      jobs.first.started_at.should_not be_nil
     end
   end
 
@@ -388,19 +408,23 @@ describe 'Navvy::Job' do
 
       @failed_job.times_failed.should == 3
     end
-    
-     it 'should return 2 when having 1 failed and one pending child' do
-        Navvy::Job.create(
-          :failed_at => Time.now,
-          :parent_id => @failed_job.id
-        )
-        
-        Navvy::Job.create(
-          :parent_id => @failed_job.id
-        )
-        
-        @failed_job.times_failed.should == 2
-      end
+
+    it 'should return 2 when having 1 failed and one pending child' do
+      Navvy::Job.create(
+        :failed_at => Time.now,
+        :parent_id => @failed_job.id
+      )
+
+      Navvy::Job.create(
+        :parent_id => @failed_job.id
+      )
+
+      Navvy::Job.create(
+        :parent_id => @failed_job.id
+      )
+
+      @failed_job.times_failed.should == 2
+    end
 
     it 'should return 2 when having failed and having a failed parent' do
       failed_child =  Navvy::Job.create(
