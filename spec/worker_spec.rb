@@ -4,9 +4,9 @@ describe Navvy::Worker do
   describe '.fetch_and_run_jobs' do
     before do
       @jobs = [
-        Navvy::Job.enqueue(Cow, :speak),
-        Navvy::Job.enqueue(Cow, :speak),
-        Navvy::Job.enqueue(Cow, :speak)
+        Navvy::Job.new,
+        Navvy::Job.new,
+        Navvy::Job.new
       ]
 
       Navvy::Job.stub!(:next).and_return(@jobs)
@@ -17,7 +17,7 @@ describe Navvy::Worker do
       Navvy::Worker.fetch_and_run_jobs
     end
 
-    it 'should run three jobs' do
+    it 'should run all jobs' do
       @jobs.each do |job|
         job.should_receive(:run)
       end

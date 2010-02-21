@@ -4,41 +4,39 @@ require 'navvy'
 require 'spec'
 require 'spec/autorun'
 
-Spec::Runner.configure do |config|
-end
-
-def delete_all_jobs
-  if defined? Navvy::Job.delete_all
-    Navvy::Job.delete_all
-  elsif defined? Navvy::Job.all.destroy
-    Navvy::Job.all.destroy
-  else
-    Navvy::Job.delete
-  end
-end
-
-def job_count
-  if defined? Navvy::Job.count
-    Navvy::Job.count
-  else
-    Navvy::Job.all.length
-  end
-end
-
-def first_job
-  Navvy::Job.first
-end
-
-class Cow
-  def self.speak
-    'moo'
-  end
-
-  def self.broken
-    raise 'this method is broken'
-  end
-end
-
 Navvy.configure do |config|
   config.quiet = true
+end
+
+module Navvy
+  class Job
+    class << self
+      attr_writer :limit
+    end
+
+    attr_accessor :object, :method_name, :exception
+
+    def self.limit
+      Navvy.configuration.job_limit
+    end
+
+    def self.keep
+      Navvy.configuration.keep_jobs
+    end
+
+    def self.max_attempts
+      Navvy.configuration.max_attempts
+    end
+
+    def run
+    end
+
+    def failed?
+      false
+    end
+
+    def args
+      [1,2,3]
+    end
+  end
 end

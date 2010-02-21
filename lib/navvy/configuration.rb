@@ -2,7 +2,7 @@ module Navvy
   class Configuration
     attr_accessor :job_limit, :keep_jobs, :logger, :quiet, :sleep_time,
       :max_attempts
-    
+
     def initialize
       @job_limit =    100
       @keep_jobs =    false

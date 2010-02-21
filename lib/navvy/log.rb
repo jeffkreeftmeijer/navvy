@@ -1,10 +1,10 @@
 module Navvy
-  class Log  
+  class Log
     class << self
       attr_writer :logger
       attr_accessor :quiet
     end
-    
+
     class LoggerNotFound < StandardError; end
 
     ##
@@ -43,7 +43,7 @@ module Navvy
         write(logger, message, color)
       end
     end
-    
+
     ##
     # Actually write the log to the logger. It'll check self.logger and use
     # that to define a logger
@@ -52,7 +52,7 @@ module Navvy
     # @param [String] message the message you want to log
     # @param [Integer] color an optional color code to use in the terminal
     # output
-    
+
     def self.write(logger, message, color = nil)
       puts "\e[#{color}m#{message}\e[0m" unless quiet
       case logger
@@ -61,7 +61,7 @@ module Navvy
           LoggerNotFound,
           'JustLogging could not be found. No logs were created.'
         ) unless defined? Justlogging.log
-        Justlogging.log(message)  
+        Justlogging.log(message)
       when :rails
         raise(
           LoggerNotFound,
