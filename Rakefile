@@ -10,6 +10,7 @@ begin
     gem.email = "jeff@kreeftmeijer.nl"
     gem.homepage = "http://github.com/jeffkreeftmeijer/navvy"
     gem.authors = ["Jeff Kreeftmeijer"]
+    gem.add_development_dependency "daemons",               ">= 1.0.0"
     gem.add_development_dependency "rspec",                 ">= 1.2.9"
     gem.add_development_dependency "yard",                  ">= 0.5.2"
     gem.add_development_dependency "mongo_mapper",          ">= 0.6.10"
