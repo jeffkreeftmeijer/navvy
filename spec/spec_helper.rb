@@ -39,6 +39,18 @@ class Cow
   end
 end
 
+module Animals
+	class Cow
+		def self.speak
+			'moo'
+		end
+
+		def self.broken
+			raise 'this method is broken'
+		end
+	end
+end
+
 Navvy.configure do |config|
   config.quiet = true
 end
