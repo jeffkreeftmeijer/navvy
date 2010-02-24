@@ -78,19 +78,19 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<yard>, [">= 0.5.2"])
       s.add_development_dependency(%q<sequel>, [">= 3.8.0"])
       s.add_development_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
-      s.add_runtime_dependency(%q<daemons>, [">= 1.0.0"])
+      s.add_runtime_dependency(%q<daemons>, [">= 1.0.10"])
     else
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0.5.2"])
       s.add_dependency(%q<sequel>, [">= 3.8.0"])
       s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
-      s.add_dependency(%q<daemons>, [">= 1.0.0"])
+      s.add_dependency(%q<daemons>, [">= 1.0.10"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0.5.2"])
     s.add_dependency(%q<sequel>, [">= 3.8.0"])
     s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
-    s.add_dependency(%q<daemons>, [">= 1.0.0"])
+    s.add_dependency(%q<daemons>, [">= 1.0.10"])
   end
 end
