@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{navvy}
-  s.version = "0.1.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-01-21}
+  s.date = %q{2010-02-23}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
@@ -25,20 +25,24 @@ Gem::Specification.new do |s|
      "VERSION",
      "generators/navvy/navvy_generator.rb",
      "generators/navvy/templates/migration.rb",
+     "generators/navvy/templates/script",
      "lib/generators/navvy_generator.rb",
      "lib/navvy.rb",
+     "lib/navvy/configuration.rb",
+     "lib/navvy/job.rb",
      "lib/navvy/job/active_record.rb",
+     "lib/navvy/job/data_mapper.rb",
      "lib/navvy/job/mongo_mapper.rb",
      "lib/navvy/job/sequel.rb",
      "lib/navvy/log.rb",
      "lib/navvy/tasks.rb",
      "lib/navvy/worker.rb",
      "navvy.gemspec",
-     "spec/job/active_record_spec.rb",
-     "spec/job/mongo_mapper_spec.rb",
-     "spec/job/sequel_spec.rb",
+     "spec/configuration_spec.rb",
+     "spec/job_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
+     "spec/setup/data_mapper.rb",
      "spec/setup/justlogging.rb",
      "spec/setup/mongo_mapper.rb",
      "spec/setup/rails_default_logger.rb",
@@ -52,11 +56,11 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.test_files = [
-    "spec/job/active_record_spec.rb",
-     "spec/job/mongo_mapper_spec.rb",
-     "spec/job/sequel_spec.rb",
+    "spec/configuration_spec.rb",
+     "spec/job_spec.rb",
      "spec/log_spec.rb",
      "spec/setup/active_record.rb",
+     "spec/setup/data_mapper.rb",
      "spec/setup/justlogging.rb",
      "spec/setup/mongo_mapper.rb",
      "spec/setup/rails_default_logger.rb",
@@ -72,18 +76,21 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0.5.2"])
-      s.add_development_dependency(%q<mongo_mapper>, [">= 0.6.10"])
       s.add_development_dependency(%q<sequel>, [">= 3.8.0"])
+      s.add_development_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
+      s.add_runtime_dependency(%q<daemons>, [">= 1.0.10"])
     else
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0.5.2"])
-      s.add_dependency(%q<mongo_mapper>, [">= 0.6.10"])
       s.add_dependency(%q<sequel>, [">= 3.8.0"])
+      s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
+      s.add_dependency(%q<daemons>, [">= 1.0.10"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0.5.2"])
-    s.add_dependency(%q<mongo_mapper>, [">= 0.6.10"])
     s.add_dependency(%q<sequel>, [">= 3.8.0"])
+    s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.5"])
+    s.add_dependency(%q<daemons>, [">= 1.0.10"])
   end
 end

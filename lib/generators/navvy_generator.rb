@@ -11,6 +11,12 @@ class NavvyGenerator < Rails::Generators::Base
       'migration.rb',
       'db/migrate/create_navvy_table.rb'
     )
+
+    copy_file(
+      'script',
+      'script/navvy',
+      :chmod => 0755
+    )
   end
 
   protected
