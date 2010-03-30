@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{navvy}
-  s.version = "0.2.2"
+  s.version = "0.2.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Kreeftmeijer"]
-  s.date = %q{2010-02-23}
+  s.date = %q{2010-03-30}
   s.description = %q{Simple background job processor inspired by delayed_job, but aiming for database agnosticism.}
   s.email = %q{jeff@kreeftmeijer.nl}
   s.extra_rdoc_files = [
