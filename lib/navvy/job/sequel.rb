@@ -22,20 +22,6 @@ module Navvy
         args.pop if args.last.empty?
       end
 
-      #Return value from create must be the record created, but in sequel - oracle 
-      #use generator and sequel try to populate with :id =>1 and failed!
-      #create(
-      #  :object =>      object.to_s,
-      #  :method_name => method_name.to_s,
-      #  :arguments =>   args.to_yaml,
-      #  :priority =>    options[:priority] || 0,
-      #  :parent_id =>   options[:parent_id],
-      #  :run_at =>      options[:run_at] || Time.now,
-      #  :created_at =>  Time.now
-      #)
-      
-      #workaround using insert (return value: number of record inserted)
-      #plus query the last id
       insert(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
@@ -46,7 +32,6 @@ module Navvy
         :created_at =>  Time.now
       )
       order(:id.desc).first
-      
     end
 
     ##
@@ -60,12 +45,7 @@ module Navvy
     # @return [array, nil] the next available jobs in an array or nil if no
     # jobs were found.
 
-    #oracle does't recognaze '`'
     def self.next(limit = self.limit)
-      #filter(
-      #  '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
-      #  Time.now
-      #).order(:priority.desc, :created_at).first(limit)
       filter(
             (:run_at <= Time.now),
             {:failed_at    => nil, 
@@ -80,13 +60,10 @@ module Navvy
     #
     # @return [true, false] delete_all the result of the delete_all call
 
-    #oracle does't recognaze '`'
     def self.cleanup
       if keep.is_a? Fixnum
-        #filter('`completed_at` <= ?', (Time.now - keep)).delete
         filter(:completed_at <= (Time.now - keep)).delete
       else
-        #filter('`completed_at` IS NOT NULL').delete unless keep?
         filter(~{:completed_at => nil}).delete unless keep?
       end
     end
@@ -153,12 +130,10 @@ module Navvy
     #
     # @return [Integer] count the amount of times the job has failed
 
-    #oracle does't recognaze '`'
     def times_failed
       i = parent_id || id
       self.class.filter(
-        #"(`id` == '#{i}' OR `parent_id` == '#{i}') AND `failed_at` IS NOT NULL"
-        ({:id => i} | {:parent_id => i}), ~{failed_at => nil}
+        ({:id => i} | {:parent_id => i}), ~{:failed_at => nil}
       ).count
     end
   end
