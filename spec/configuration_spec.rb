@@ -5,8 +5,7 @@ describe Navvy::Configuration do
     Navvy.configure do |config|
       config.job_limit =  100
       config.keep_jobs =  false
-      config.logger =     nil
-      config.quiet =      true
+      config.logger =     Navvy::Logger.new
       config.sleep_time = 5
     end
   end
@@ -34,30 +33,42 @@ describe Navvy::Configuration do
     
     Navvy::Job.keep.should == 10
   end
-  
-  it 'should not have a logger by default' do
-    Navvy::Log.logger.should == nil
+
+  it 'should log to STDOUT by default' do
+    Navvy.logger.instance_variable_get(:@logdev).filename.should == nil
   end
   
-  it 'should set the keep_jobs' do
+  it 'should set the logger' do
     Navvy.configure do |config|
-      config.logger = :rails
+      config.logger = Logger.new('test.log')
     end
     
-    Navvy::Log.logger.should == :rails
+    Navvy.logger.instance_variable_get(:@logdev).filename.should == 'test.log'
   end
   
-  it 'should be quiet in the specs' do
-    Navvy::Log.quiet.should == true
-  end
+  #it 'should not have a logger by default' do
+  #  Navvy::Log.logger.should == nil
+  #end
+  #
+  #it 'should set the keep_jobs' do
+  #  Navvy.configure do |config|
+  #    config.logger = :rails
+  #  end
+  #  
+  #  Navvy::Log.logger.should == :rails
+  #end
   
-  it 'should turn quiet off' do
-    Navvy.configure do |config|
-      config.quiet = false
-    end
-    
-    Navvy::Log.quiet.should == false
-  end
+  #it 'should be quiet in the specs' do
+  #  Navvy::Log.quiet.should == true
+  #end
+  #
+  #it 'should turn quiet off' do
+  #  Navvy.configure do |config|
+  #    config.quiet = false
+  #  end
+  #  
+  #  Navvy::Log.quiet.should == false
+  #end
   
   it 'should have a default sleep time of 5' do
     Navvy::Worker.sleep_time.should == 5
