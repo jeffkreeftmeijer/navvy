@@ -9,7 +9,7 @@ group :data_mapper do
 end
 
 group :mongo_mapper do
-  gem 'mongo_mapper', '>= 0.6.8'
+  gem 'mongo_mapper', '>= 0.7.0'
 end
 
 group :sequel do
@@ -17,7 +17,8 @@ group :sequel do
 end
 
 group :test do
-  gem 'rspec', '1.3.0'
+  gem 'rspec', '1.2.9'
 end
 
+gem 'yard', '>= 0.5.2'
 gem 'daemons', '1.0.10'
