@@ -5,7 +5,7 @@ describe Navvy::Configuration do
     Navvy.configure do |config|
       config.job_limit =  100
       config.keep_jobs =  false
-      config.logger =     Navvy::Logger.new
+      config.logger =     Navvy::Logger.new('/dev/null')
       config.sleep_time = 5
     end
   end
@@ -34,16 +34,12 @@ describe Navvy::Configuration do
     Navvy::Job.keep.should == 10
   end
 
-  it 'should log to STDOUT by default' do
-    Navvy.logger.instance_variable_get(:@logdev).filename.should == nil
-  end
-
   it 'should set the logger' do
     Navvy.configure do |config|
-      config.logger = Logger.new('test.log')
+      config.logger = Navvy::Logger.new
     end
 
-    Navvy.logger.instance_variable_get(:@logdev).filename.should == 'test.log'
+    Navvy.logger.instance_variable_get(:@logdev).filename.should == nil
   end
 
   it 'should have a default sleep time of 5' do

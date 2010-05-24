@@ -13,7 +13,7 @@ describe Navvy::Logger do
 
     describe 'when logging to a file' do
       it 'should not use the provided colors' do
-        logger = Navvy::Logger.new('test.log')
+        logger = Navvy::Logger.new('/dev/null')
         logger.should_receive(:info).with('colors!')
         logger.should_not_receive(:info).with("\e[32mcolors!\e[0m")
         logger.colorized_info 'colors!', 32
