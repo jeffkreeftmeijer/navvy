@@ -9,7 +9,7 @@ class NavvyGenerator < Rails::Generators::Base
   def install_navvy
     migration_template(
       'migration.rb',
-      'db/migrate/create_navvy_table.rb'
+      'db/migrate/create_jobs.rb'
     )
 
     copy_file(
