@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.homepage = 'http://github.com/jeffkreeftmeijer/navvy'
 
   gem.files = Dir['{generators,lib,spec}/**/*', 'README*', 'LICENSE*'] & `git ls-files -z`.split("\0")
-  
+
   gem.add_dependency('rspec', [">= 1.2.9"])
   gem.add_dependency('yard', [">= 0.5.2"])
   gem.add_dependency('daemons', [">= 1.0.10"])
