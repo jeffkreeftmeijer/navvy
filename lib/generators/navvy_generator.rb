@@ -20,7 +20,7 @@ class NavvyGenerator < Rails::Generators::Base
   end
 
   protected
-    def next_migration_number(dirname) #:nodoc:
+    def self.next_migration_number(dirname) #:nodoc:
       "%.3d" % (current_migration_number(dirname) + 1)
     end
 end
