@@ -17,7 +17,7 @@ group :sequel do
 end
 
 group :test do
-  gem 'rspec', '1.2.9'
+  gem 'rspec', '1.3.0'
 end
 
 gem 'yard', '>= 0.5.2'
