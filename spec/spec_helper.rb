@@ -50,7 +50,3 @@ module Animals
 		end
 	end
 end
-
-Navvy.configure do |config|
-  config.quiet = true
-end

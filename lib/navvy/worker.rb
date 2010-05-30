@@ -19,15 +19,15 @@ module Navvy
     # Start the worker.
 
     def self.start
-      Navvy::Log.info '*** Starting ***'
-      trap('TERM') { Navvy::Log.info '*** Exiting ***'; $exit = true }
-      trap('INT')  { Navvy::Log.info '*** Exiting ***'; $exit = true }
+      Navvy.logger.info '*** Starting ***'
+      trap('TERM') { Navvy.logger.info '*** Exiting ***'; $exit = true }
+      trap('INT')  { Navvy.logger.info '*** Exiting ***'; $exit = true }
 
       loop do
         fetch_and_run_jobs
 
         if $exit
-          Navvy::Log.info '*** Cleaning up ***'
+          Navvy.logger.info '*** Cleaning up ***'
           Navvy::Job.cleanup
           break
         end
@@ -41,7 +41,7 @@ module Navvy
     def self.fetch_and_run_jobs
       Job.next.each do |job|
         result = job.run
-        Navvy::Log.info(
+        Navvy.logger.colorized_info(
           "* #{job.object.to_s}.#{job.method_name}" <<
           "(#{job.args.join(', ')}) => #{(job.exception || result).to_s}",
           job.failed? ? 31 : 32
