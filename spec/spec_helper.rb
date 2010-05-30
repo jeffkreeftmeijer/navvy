@@ -7,16 +7,6 @@ require 'spec/autorun'
 Spec::Runner.configure do |config|
 end
 
-def delete_all_jobs
-  if defined? Navvy::Job.delete_all
-    Navvy::Job.delete_all
-  elsif defined? Navvy::Job.all.destroy
-    Navvy::Job.all.destroy
-  else
-    Navvy::Job.delete
-  end
-end
-
 def job_count
   if defined? Navvy::Job.count
     Navvy::Job.count

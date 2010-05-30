@@ -40,7 +40,7 @@ describe 'Navvy::Job' do
 
   describe '.enqueue' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
     end
 
     it 'should enqueue a job' do
@@ -91,7 +91,7 @@ describe 'Navvy::Job' do
 
   describe '.next' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       Navvy::Job.create(
         :object =>      'Cow',
         :method_name => :last,
@@ -141,7 +141,7 @@ describe 'Navvy::Job' do
 
   describe '.cleanup' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       Navvy::Job.create(
         :object =>        'Cow',
         :method_name =>   :speak,
@@ -186,7 +186,7 @@ describe 'Navvy::Job' do
 
   describe '#run' do
     it 'should pass the arguments' do
-      delete_all_jobs
+      Navvy::Job.delete_all
       job = Navvy::Job.enqueue(Cow, :name, 'Betsy')
       Cow.should_receive(:name).with('Betsy')
       job.run
@@ -194,7 +194,7 @@ describe 'Navvy::Job' do
 
     describe 'when everything goes well' do
       before(:each) do
-        delete_all_jobs
+        Navvy::Job.delete_all
         Navvy::Job.enqueue(Cow, :speak)
         Navvy::Job.keep = false
       end
@@ -235,7 +235,7 @@ describe 'Navvy::Job' do
 
     describe 'when a job fails' do
       before(:each) do
-        delete_all_jobs
+        Navvy::Job.delete_all
         Navvy::Job.enqueue(Cow, :broken)
       end
 
@@ -251,7 +251,7 @@ describe 'Navvy::Job' do
 
   describe '#started' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       Navvy::Job.enqueue(Cow, :speak)
     end
 
@@ -264,7 +264,7 @@ describe 'Navvy::Job' do
 
   describe '#completed' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       Navvy::Job.enqueue(Cow, :speak)
     end
 
@@ -283,7 +283,7 @@ describe 'Navvy::Job' do
 
   describe '#failed' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       Navvy::Job.enqueue(Cow, :speak)
     end
 
@@ -323,7 +323,7 @@ describe 'Navvy::Job' do
 
   describe '#retry' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
     end
 
     it 'should enqueue a child for the failed job' do
@@ -388,7 +388,7 @@ describe 'Navvy::Job' do
 
   describe '#times_failed' do
     before(:each) do
-      delete_all_jobs
+      Navvy::Job.delete_all
       @failed_job = Navvy::Job.create(
         :failed_at => Time.now
       )
