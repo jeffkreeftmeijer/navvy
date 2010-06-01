@@ -122,7 +122,7 @@ describe 'Navvy::Job' do
 
     it 'should find the next 10 available jobs' do
       jobs = Navvy::Job.next
-      jobs.count.should == 100
+      jobs.length.should == 100
       jobs.each do |job|
         job.should be_instance_of Navvy::Job
         job.method_name.to_s.should == 'speak'
@@ -130,12 +130,12 @@ describe 'Navvy::Job' do
     end
 
     it 'should find the next 2 available jobs' do
-      Navvy::Job.next(2).count.should == 2
+      Navvy::Job.next(2).length.should == 2
     end
 
     it 'should find the next 4 available jobs' do
       Navvy::Job.limit = 4
-      Navvy::Job.next.count.should == 4
+      Navvy::Job.next.length.should == 4
     end
   end
 
