@@ -16,6 +16,12 @@ group :sequel do
   gem 'sequel', '>= 3.8.0'
 end
 
+group :mongoid do
+  gem 'mongoid'
+  gem 'builder'
+  gem 'tzinfo'
+end
+
 group :test do
   gem 'rspec', '1.3.0'
 end
