@@ -27,4 +27,3 @@ group :test do
 end
 
 gem 'yard', '>= 0.5.2'
-gem 'daemons', '1.0.10'

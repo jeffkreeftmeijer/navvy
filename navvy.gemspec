@@ -14,5 +14,4 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency('rspec', [">= 1.2.9"])
   gem.add_dependency('yard', [">= 0.5.2"])
-  gem.add_dependency('daemons', [">= 1.0.10"])
 end
