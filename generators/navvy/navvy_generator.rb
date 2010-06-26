@@ -4,7 +4,7 @@ class NavvyGenerator < Rails::Generator::Base
       options = {
         :migration_file_name => 'create_jobs'
       }
-      m.migration_template 'migration.rb', 'db/migrate', options
+      m.migration_template 'active_record_migration.rb', 'db/migrate', options
     end
   end
 
