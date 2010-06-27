@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'sequel'
 require 'yaml'
 
@@ -48,7 +47,7 @@ module Navvy
     def self.next(limit = self.limit)
       filter(
             (:run_at <= Time.now),
-            {:failed_at    => nil, 
+            {:failed_at    => nil,
              :completed_at => nil}
       ).order(:priority.desc, :created_at).first(limit)
     end

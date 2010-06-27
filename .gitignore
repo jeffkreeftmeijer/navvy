@@ -6,3 +6,5 @@ rdoc
 doc
 pkg
 tmp
+*.gem
+.bundle

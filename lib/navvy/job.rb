@@ -152,14 +152,14 @@ module Navvy
 
     alias_method :completed?, :completed_at?
     alias_method :failed?,    :failed_at?
-	
+
 	private
-		
+
 		##
 		# Turn a constant with potential namespacing into an object
 		#
 		# @return [Class] class
-		
+
 		def constantize(str)
 			names = str.split('::')
 			names.shift if names.empty? || names.first.empty?

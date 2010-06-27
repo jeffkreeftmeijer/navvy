@@ -2,21 +2,27 @@ require 'rails/generators/migration'
 class NavvyGenerator < Rails::Generators::Base
   include Rails::Generators::Migration
 
+  class_option :active_record,
+    :desc => 'Generate a migration file for ActiveRecord. (default)',
+    :type => 'boolean'
+
+  class_option :sequel,
+    :desc => 'Generate a migration file for Sequel.',
+    :type => 'boolean'
+
   def self.source_root
     File.join(File.dirname(__FILE__), '..', '..', 'generators', 'navvy', 'templates')
   end
 
   def install_navvy
     migration_template(
-      'migration.rb',
+      "#{orm}_migration.rb",
       'db/migrate/create_jobs.rb'
     )
+  end
 
-    copy_file(
-      'script',
-      'script/navvy',
-      :chmod => 0755
-    )
+  def orm
+    options[:sequel] ? 'sequel' : 'active_record'
   end
 
   protected

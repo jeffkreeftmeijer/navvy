@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'mongo_mapper'
 
 module Navvy

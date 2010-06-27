@@ -1,13 +1,32 @@
-require 'active_record'
+require 'mongoid'
 
 module Navvy
-  class Job < ActiveRecord::Base
+  class Job
+    include Mongoid::Document
+    include Mongoid::Timestamps
+
+    field :object,        :type => String
+    field :method_name,   :type => String
+    field :arguments,     :type => String
+    field :priority,      :type => Integer, :default => 0
+    field :return,        :type => String
+    field :exception,     :type => String
+    field :parent_id,     :type => String
+    field :created_at,    :type => Time
+    field :run_at,        :type => Time
+    field :started_at,    :type => Time
+    field :completed_at,  :type => Time
+    field :failed_at,     :type => Time
+
+    index [[:priority, Mongo::DESCENDING]]
+    index [[:created_at, Mongo::ASCENDING]]
 
     ##
     # Add a job to the job queue.
     #
     # @param [Object] object the object you want to run a method from
-    # @param [Symbol, String] method_name the name of the method you want to run
+    # @param [Symbol, String] method_name the name of the method you want to
+    # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
     # @return [true, false]
@@ -16,17 +35,16 @@ module Navvy
       options = {}
       if args.last.is_a?(Hash)
         options = args.last.delete(:job_options) || {}
-         args.pop if args.last.empty?
+        args.pop if args.last.empty?
       end
 
       create(
         :object =>      object.to_s,
-        :method_name => method_name.to_s,
-        :arguments =>   args,
+        :method_name => method_name.to_sym,
+        :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
         :parent_id =>   options[:parent_id],
-        :run_at =>      options[:run_at] || Time.now,
-        :created_at =>  Time.now
+        :run_at =>      options[:run_at] || Time.now
       )
     end
 
@@ -42,14 +60,11 @@ module Navvy
     # jobs were found.
 
     def self.next(limit = self.limit)
-      all(
-        :conditions =>    [
-          '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
-          Time.now
-        ],
-        :limit =>         limit,
-        :order =>         'priority desc, created_at'
-      )
+      where(:failed_at => nil).
+        where(:completed_at => nil).
+        where(:run_at.lte => Time.now).
+        order_by([[:priority, :desc], [:created_at, :asc]]).
+        limit(limit).to_a
     end
 
     ##
@@ -61,14 +76,9 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        delete_all([
-          '`completed_at` <= ?',
-          keep.ago
-        ])
+        destroy_all(:conditions => { :completed_at.lte => keep.ago })
       else
-        delete_all(
-          '`completed_at` IS NOT NULL'
-        ) unless keep?
+        destroy_all(:conditions => { :completed_at.ne => nil }) unless keep?
       end
     end
 
@@ -79,9 +89,7 @@ module Navvy
     # update_attributes call
 
     def started
-      update_attributes({
-        :started_at =>  Time.now
-      })
+      update_attributes(:started_at =>  Time.now)
     end
 
     ##
@@ -94,10 +102,7 @@ module Navvy
     # update_attributes call
 
     def completed(return_value = nil)
-      update_attributes({
-        :completed_at =>  Time.now,
-        :return =>        return_value
-      })
+      update_attributes(:completed_at => Time.now, :return => return_value)
     end
 
     ##
@@ -112,10 +117,7 @@ module Navvy
 
     def failed(message = nil)
       self.retry unless times_failed >= self.class.max_attempts
-      update_attributes(
-        :failed_at => Time.now,
-        :exception => message
-      )
+      update_attributes(:failed_at => Time.now, :exception => message)
     end
 
     ##
@@ -126,9 +128,10 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      self.class.count(
-        :conditions => "(`id` = '#{i}' OR `parent_id` = '#{i}') AND `failed_at` IS NOT NULL"
-      )
+      self.class.
+        where(:failed_at.ne => nil).
+        where("this._id == '#{i}' || this.parent_id == '#{i}'").
+        count
     end
   end
 end

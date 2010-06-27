@@ -1,16 +1,18 @@
 h1. Navvy
 
-Navvy is a simple Ruby background job processor inspired by "delayed_job":http://github.com/tobi/delayed_job, but aiming for database agnosticism. Currently Navvy supports ActiveRecord, MongoMapper, Sequel and DataMapper but it's extremely easy to write an adapter for your favorite ORM. Besides plain Ruby (1.8 & 1.9) it completely supports Rails Edge.
+Navvy is a simple Ruby background job processor inspired by "delayed_job":http://github.com/tobi/delayed_job, but aiming for database agnosticism. Currently Navvy supports ActiveRecord, MongoMapper, Sequel, DataMapper and Mongoid but it's extremely easy to write an adapter for your favorite ORM.
+
+Navvy doesn't depend on Rails, it's a pure Ruby library. There are generators for Rails 2 and Rails 3, though.
 
 ??“Navvy is a shorter form of navigator (UK) or navigational engineer (USA) and is particularly applied to describe the manual labourers working on major civil engineering projects. The term was coined in the late 18th century in Britain when numerous canals were being built, which were also sometimes known as "navigations". Canal navvies typically worked with shovels, pickaxes and barrows.”?? - "Wikipedia":http://en.wikipedia.org/wiki/Navvy
 
 h2. Using Navvy
 
-There are some "Installation Guide":http://wiki.github.com/jeffkreeftmeijer/navvy/installation (even for "Rails 3":http://wiki.github.com/jeffkreeftmeijer/navvy/installation-on-rails-edge) and a "Getting Started Guide":http://wiki.github.com/jeffkreeftmeijer/navvy/getting-started to put you on the right track. Any questions? Don't hesitate to "ask":http://github.com/inbox/new/jeffkreeftmeijer.
+Check out the "Installation Guide":http://wiki.github.com/jeffkreeftmeijer/navvy/installation and the "Getting Started Guide":http://wiki.github.com/jeffkreeftmeijer/navvy/getting-started to get up and running. If you have any questions or problems, don't hesitate to "ask":http://github.com/inbox/new/jeffkreeftmeijer.
 
 h2. Contributing
 
-Found any issues? Have a great idea? Want to help? Great! Create an issue "issue":http://github.com/jeffkreeftmeijer/navvy/issues for it, or even better; "fork the project":http://github.com/jeffkreeftmeijer/navvy/fork. Pull requests are always welcome. :)
+Found an issue? Have a great idea? Want to help? Great! Create an issue "issue":http://github.com/jeffkreeftmeijer/navvy/issues for it, "ask":http://github.com/inbox/new/jeffkreeftmeijer, or even better; fork the project and fix the problem yourself. Pull requests are always welcome. :)
 
 h2. License
 
