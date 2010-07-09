@@ -43,8 +43,8 @@ module Navvy
 
     def self.next(limit = self.limit)
       all(
-        :conditions =>    [
-          '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
+        :conditions => [
+          "#{connection.quote_column_name('failed_at')} IS NULL AND #{connection.quote_column_name('completed_at')} IS NULL AND #{connection.quote_column_name('run_at')} <= ?",
           Time.now
         ],
         :limit =>         limit,
@@ -62,12 +62,12 @@ module Navvy
     def self.cleanup
       if keep.is_a? Fixnum
         delete_all([
-          '`completed_at` <= ?',
+          "#{connection.quote_column_name('completed_at')} <= ?",
           keep.ago
         ])
       else
         delete_all(
-          '`completed_at` IS NOT NULL'
+          "#{connection.quote_column_name('completed_at')} IS NOT NULL"
         ) unless keep?
       end
     end
@@ -127,7 +127,7 @@ module Navvy
     def times_failed
       i = parent_id || id
       self.class.count(
-        :conditions => "(`id` = '#{i}' OR `parent_id` = '#{i}') AND `failed_at` IS NOT NULL"
+        :conditions => "(#{connection.quote_column_name('id')} = '#{i}' OR #{connection.quote_column_name('parent_id')} = '#{i}') AND #{connection.quote_column_name('failed_at')} IS NOT NULL"
       )
     end
   end
