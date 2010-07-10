@@ -24,6 +24,7 @@ end
 
 group :test do
   gem 'rspec', '1.3.0'
+  gem 'timecop', '0.3.5'
 end
 
 gem 'yard', '>= 0.5.2'
