@@ -64,7 +64,7 @@ module Navvy
     def run
       begin
         started
-        result = constantize(object).send(method_name, *args)
+        result = constantize(object).send(method_name, *args).inspect
         Navvy::Job.keep? ? completed(result) : destroy
         result
       rescue Exception => exception

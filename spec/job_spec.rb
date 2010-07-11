@@ -202,7 +202,7 @@ describe 'Navvy::Job' do
 
       it 'should run the job and delete it' do
         jobs = Navvy::Job.next
-        jobs.first.run.should == 'moo'
+        jobs.first.run.should == '"moo"'
         job_count.should == 0
       end
 
@@ -210,7 +210,7 @@ describe 'Navvy::Job' do
         it 'should call #completed with the return value after processing the job' do
           Navvy::Job.keep = true
           jobs = Navvy::Job.next
-          jobs.first.should_receive(:completed).with('moo')
+          jobs.first.should_receive(:completed).with('"moo"')
           jobs.first.run
         end
 
@@ -495,7 +495,7 @@ describe 'Navvy::Job' do
   describe '#namespaced' do
 		it 'should accept a namespaced class name' do
       job = Navvy::Job.enqueue(Animals::Cow, :speak)
-      job.run.should == 'moo'
+      job.run.should == '"moo"'
     end
   end
 end
