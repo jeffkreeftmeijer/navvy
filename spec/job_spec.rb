@@ -207,6 +207,13 @@ describe 'Navvy::Job' do
       end
 
       describe 'when Navvy::Job.keep is set' do
+        it 'should call #completed with the return value after processing the job' do
+          Navvy::Job.keep = true
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:completed).with('moo')
+          jobs.first.run
+        end
+
         it 'should mark the job as complete when keep is true' do
           Navvy::Job.keep = true
           jobs = Navvy::Job.next

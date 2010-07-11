@@ -65,7 +65,7 @@ module Navvy
       begin
         started
         result = constantize(object).send(method_name, *args)
-        Navvy::Job.keep? ? completed : destroy
+        Navvy::Job.keep? ? completed(result) : destroy
         result
       rescue Exception => exception
         failed(exception.message)
