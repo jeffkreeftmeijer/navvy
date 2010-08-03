@@ -31,13 +31,13 @@ class Cow
 end
 
 module Animals
-	class Cow
-		def self.speak
-			'moo'
-		end
+  class Cow
+    def self.speak
+      'moo'
+    end
 
-		def self.broken
-			raise 'this method is broken'
-		end
-	end
+    def self.broken
+      raise 'this method is broken'
+    end
+  end
 end

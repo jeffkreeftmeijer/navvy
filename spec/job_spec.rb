@@ -493,7 +493,7 @@ describe 'Navvy::Job' do
   end
 
   describe '#namespaced' do
-		it 'should accept a namespaced class name' do
+    it 'should accept a namespaced class name' do
       job = Navvy::Job.enqueue(Animals::Cow, :speak)
       job.run.should == '"moo"'
     end
