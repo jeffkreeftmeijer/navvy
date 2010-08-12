@@ -36,8 +36,7 @@ module Navvy
         args.pop if args.last.empty?
       end
 
-      new_job = self.new
-      new_job.attributes = {
+      new_job = Job.create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
@@ -45,9 +44,7 @@ module Navvy
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
-      }
-      new_job.save
-      new_job
+      )
     end
 
     ##
@@ -92,7 +89,7 @@ module Navvy
     # @return [true, false] deleted?
 
     def self.delete_all
-      Navvy::Job.all.destroy
+      Navvy::Job.destroy
     end
 
     ##
@@ -102,9 +99,7 @@ module Navvy
     # update_attributes call
 
     def started
-      update({
-        :started_at =>  Time.now
-      })
+      update(:started_at =>  Time.now)
     end
 
     ##
@@ -150,9 +145,8 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      self.class.all(
-        :conditions => ["(`id` = ? OR `parent_id` = ?) AND `failed_at` IS NOT NULL", i, i]
-      ).count
+      not_failed = self.class.all(:failed_at.not => nil)
+      (not_failed.all(:id => i) | not_failed.all(:parent_id => i)).count
     end
   end
 end

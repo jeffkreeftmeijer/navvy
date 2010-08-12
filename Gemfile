@@ -5,7 +5,7 @@ group :active_record do
 end
 
 group :data_mapper do
-  gem 'dm-core', '>= 0.10.2'
+  gem 'dm-core', '>= 1.0.0'
   gem 'dm-sqlite-adapter'
   gem 'dm-migrations'
 end
