@@ -1,4 +1,5 @@
 require 'dm-core'
+require 'dm-migrations'
 
 module Navvy
   class Job

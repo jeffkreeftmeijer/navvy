@@ -6,6 +6,8 @@ end
 
 group :data_mapper do
   gem 'dm-core', '>= 0.10.2'
+  gem 'dm-sqlite-adapter'
+  gem 'dm-migrations'
 end
 
 group :mongo_mapper do
