@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source :rubygems
 
 group :active_record do
   gem 'activerecord', '>= 2.3.5'
@@ -22,9 +22,4 @@ group :mongoid do
   gem 'tzinfo'
 end
 
-group :test do
-  gem 'rspec', '1.3.0'
-  gem 'timecop', '0.3.5'
-end
-
-gem 'yard', '>= 0.5.2'
+gemspec
