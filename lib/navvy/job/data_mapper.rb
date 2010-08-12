@@ -27,7 +27,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [Job, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -145,8 +145,8 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      not_failed = self.class.all(:failed_at.not => nil)
-      (not_failed.all(:id => i) | not_failed.all(:parent_id => i)).count
+      klass = self.class
+      (klass.all(:failed_at.not => nil) & (klass.all(:id => i) | klass.all(:parent_id => i))).count
     end
   end
 end

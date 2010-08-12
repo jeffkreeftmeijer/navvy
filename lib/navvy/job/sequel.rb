@@ -12,7 +12,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [Job, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -44,10 +44,11 @@ module Navvy
     # jobs were found.
 
     def self.next(limit = self.limit)
-      filter(
-        :failed_at    => nil, 
-        :completed_at => nil
-      ).where{:run_at <= Time.now}.order(:priority.desc, :created_at).first(limit)
+      filter(:failed_at => nil).
+        filter(:completed_at => nil).
+        filter{:run_at <= Time.now}.
+        order(:priority.desc, :created_at).
+        first(limit)
     end
 
     ##
@@ -73,7 +74,6 @@ module Navvy
     def self.delete_all
       Navvy::Job.destroy
     end
-
 
     ##
     # Mark the job as started. Will set started_at to the current time.
@@ -127,10 +127,9 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      self.class.filter(
-        {:id => i} | {:parent_id => i},
-        ~{:failed_at => nil}
-      ).count
+      self.class.filter({:id => i} | {:parent_id => i}).
+        filter(~{:failed_at => nil}).
+        count
     end
   end
 end
