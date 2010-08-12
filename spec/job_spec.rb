@@ -5,6 +5,10 @@ describe 'Navvy::Job' do
     Timecop.freeze(Time.local(2010, 1, 1))
   end
 
+  after do
+    Timecop.return
+  end
+
   describe '.keep?' do
     after(:each) do
       Navvy::Job.keep = false
