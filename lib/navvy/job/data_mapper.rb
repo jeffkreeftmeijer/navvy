@@ -27,7 +27,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false]
+    # @return [Job, false]
 
     def self.enqueue(object, method_name, *args)
       options = {}
