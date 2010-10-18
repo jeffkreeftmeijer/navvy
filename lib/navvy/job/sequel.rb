@@ -134,4 +134,4 @@ module Navvy
   end
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../job')
+require 'navvy/job'

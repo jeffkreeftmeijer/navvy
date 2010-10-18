@@ -6,4 +6,4 @@ Mongoid.configure do |config|
   config.master = Mongo::Connection.new.db(name)
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../../lib/navvy/job/mongoid')
+require 'navvy/job/mongoid'

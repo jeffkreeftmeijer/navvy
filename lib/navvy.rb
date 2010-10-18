@@ -1,6 +1,6 @@
-require File.expand_path(File.dirname(__FILE__) + '/navvy/worker')
-require File.expand_path(File.dirname(__FILE__) + '/navvy/logger')
-require File.expand_path(File.dirname(__FILE__) + '/navvy/configuration')
+require 'navvy/worker'
+require 'navvy/logger'
+require 'navvy/configuration'
 
 module Navvy
   class << self
