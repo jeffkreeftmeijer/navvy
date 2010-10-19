@@ -19,3 +19,16 @@ module Navvy
     yield(self.configuration)
   end
 end
+
+
+if defined?(Rails)
+
+  module Navvy
+    class Railtie < Rails::Railtie
+      rake_tasks do
+        require 'navvy/tasks.rb'
+      end
+    end
+  end
+
+end
