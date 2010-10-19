@@ -11,3 +11,6 @@ namespace :navvy do
     Navvy::Worker.start
   end
 end
+
+# heroku background jobs use jobs:work
+task 'jobs:work' => 'navvy:work'
