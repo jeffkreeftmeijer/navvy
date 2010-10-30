@@ -13,7 +13,3 @@ Check out the "Installation Guide":http://wiki.github.com/jeffkreeftmeijer/navvy
 h2. Contributing
 
 Found an issue? Have a great idea? Want to help? Great! Create an issue "issue":http://github.com/jeffkreeftmeijer/navvy/issues for it, "ask":http://github.com/inbox/new/jeffkreeftmeijer, or even better; fork the project and fix the problem yourself. Pull requests are always welcome. :)
-
-h2. License
-
-Copyright (c) 2009 Jeff Kreeftmeijer, released under the MIT license
