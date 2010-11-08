@@ -1,29 +1,23 @@
 require 'rake'
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 
 adapters = Dir[File.dirname(__FILE__) + '/lib/navvy/job/*.rb'].map{|file| File.basename(file, '.rb') }
 
-task :spec do
+task :rspec do
   adapters.map{|adapter| "spec:#{adapter}"}.each do |spec|
     Rake::Task[spec].invoke
   end
 end
 
-namespace :spec do
+namespace :rspec do
   adapters.each do |adapter|
-    Spec::Rake::SpecTask.new(adapter) do |spec|
-      spec.spec_files = FileList["spec/setup/#{adapter}.rb", 'spec/*_spec.rb']
+    RSpec::Core::RakeTask.new(adapter) do |spec|
+      spec.pattern = "spec/setup/#{adapter}.rb", 'spec/*_spec.rb'
     end
   end
 end
 
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-end
-
-task :default => :spec
+task :default => :rspec
 
 begin
   require 'yard'
