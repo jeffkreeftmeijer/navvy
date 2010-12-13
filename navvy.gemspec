@@ -18,4 +18,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('rspec', ["~> 2.1.0"])
   gem.add_development_dependency('yard', [">= 0.5.2"])
   gem.add_development_dependency('timecop', [">= 0.3.5"])
+  gem.add_development_dependency('fuubar', ["~> 0.0"])
 end
