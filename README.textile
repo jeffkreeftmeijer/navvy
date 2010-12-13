@@ -1,4 +1,4 @@
-h1. Navvy
+h1. Navvy "!http://stillmaintained.com/jeffkreeftmeijer/navvy.png!":http://stillmaintained.com/jeffkreeftmeijer/navvy
 
 Navvy is a simple Ruby background job processor inspired by "delayed_job":http://github.com/tobi/delayed_job, but aiming for database agnosticism. Currently Navvy supports ActiveRecord, MongoMapper, Sequel, DataMapper and Mongoid but it's extremely easy to write an adapter for your favorite ORM.
 
