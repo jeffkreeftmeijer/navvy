@@ -46,7 +46,7 @@ module Navvy
     def self.next(limit = self.limit)
       filter(:failed_at => nil).
         filter(:completed_at => nil).
-        filter{:run_at <= Time.now}.
+        filter{run_at <= Time.now}.
         order(:priority.desc, :created_at).
         first(limit)
     end
@@ -60,7 +60,8 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        filter(:completed_at <= (Time.now - keep)).delete
+        time = Time.now - keep
+        filter{completed_at <= time}.delete
       else
         filter(~{:completed_at => nil}).delete unless keep?
       end
