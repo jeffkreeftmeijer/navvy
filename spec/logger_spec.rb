@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
 describe Navvy::Logger do
   describe '#colorized_info' do

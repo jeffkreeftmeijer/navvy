@@ -1,6 +1,6 @@
-require File.expand_path(File.dirname(__FILE__) + '/navvy/worker')
-require File.expand_path(File.dirname(__FILE__) + '/navvy/logger')
-require File.expand_path(File.dirname(__FILE__) + '/navvy/configuration')
+require 'navvy/worker'
+require 'navvy/logger'
+require 'navvy/configuration'
 
 module Navvy
   class << self
@@ -18,4 +18,17 @@ module Navvy
   def self.configure
     yield(self.configuration)
   end
+end
+
+
+if defined?(Rails)
+
+  module Navvy
+    class Railtie < Rails::Railtie
+      rake_tasks do
+        require 'navvy/tasks.rb'
+      end
+    end
+  end
+
 end

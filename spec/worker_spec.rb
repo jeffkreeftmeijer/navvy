@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
 describe Navvy::Worker do
   describe '.fetch_and_run_jobs' do

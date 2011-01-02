@@ -12,7 +12,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -21,7 +21,7 @@ module Navvy
         args.pop if args.last.empty?
       end
 
-      insert(
+      Job[insert(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
         :arguments =>   args.to_yaml,
@@ -29,8 +29,7 @@ module Navvy
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
-      )
-      order(:id.desc).first
+      )]
     end
 
     ##
@@ -45,11 +44,11 @@ module Navvy
     # jobs were found.
 
     def self.next(limit = self.limit)
-      filter(
-            (:run_at <= Time.now),
-            {:failed_at    => nil,
-             :completed_at => nil}
-      ).order(:priority.desc, :created_at).first(limit)
+      filter(:failed_at => nil).
+        filter(:completed_at => nil).
+        filter{run_at <= Time.now}.
+        order(:priority.desc, :created_at).
+        first(limit)
     end
 
     ##
@@ -61,7 +60,8 @@ module Navvy
 
     def self.cleanup
       if keep.is_a? Fixnum
-        filter(:completed_at <= (Time.now - keep)).delete
+        time = Time.now - keep
+        filter{completed_at <= time}.delete
       else
         filter(~{:completed_at => nil}).delete unless keep?
       end
@@ -76,7 +76,6 @@ module Navvy
       Navvy::Job.destroy
     end
 
-
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
@@ -84,9 +83,7 @@ module Navvy
     # update_attributes call
 
     def started
-      update({
-        :started_at =>  Time.now
-      })
+      update(:started_at =>  Time.now)
     end
 
     ##
@@ -99,10 +96,10 @@ module Navvy
     # update_attributes call
 
     def completed(return_value = nil)
-      update({
+      update(
         :completed_at =>  Time.now,
         :return =>        return_value
-      })
+      )
     end
 
     ##
@@ -131,11 +128,11 @@ module Navvy
 
     def times_failed
       i = parent_id || id
-      self.class.filter(
-        ({:id => i} | {:parent_id => i}), ~{:failed_at => nil}
-      ).count
+      self.class.filter({:id => i} | {:parent_id => i}).
+        filter(~{:failed_at => nil}).
+        count
     end
   end
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../job')
+require 'navvy/job'

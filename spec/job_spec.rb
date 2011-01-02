@@ -1,6 +1,14 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
 describe 'Navvy::Job' do
+  before do
+    Timecop.freeze(Time.local(2010, 1, 1))
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe '.keep?' do
     after(:each) do
       Navvy::Job.keep = false
@@ -70,17 +78,14 @@ describe 'Navvy::Job' do
     it 'should set the created_at date' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
       job = first_job
-      job.created_at.should be_instance_of Time
-      job.created_at.should <= Time.now
-      job.created_at.should > Time.now - 10
+      job.created_at.should == Time.now
     end
 
     it 'should set the run_at date' do
       Navvy::Job.enqueue(Cow, :speak, true, false)
       job = first_job
-      job.run_at.should be_instance_of Time
-      job.run_at.should <= Time.now
-      job.created_at.should > Time.now - 10
+      job.run_at.should == Time.now
+      job.created_at.should == Time.now
     end
 
     it 'should return the enqueued job' do
@@ -201,27 +206,34 @@ describe 'Navvy::Job' do
 
       it 'should run the job and delete it' do
         jobs = Navvy::Job.next
-        jobs.first.run.should == 'moo'
+        jobs.first.run.should == '"moo"'
         job_count.should == 0
       end
 
       describe 'when Navvy::Job.keep is set' do
+        it 'should call #completed with the return value after processing the job' do
+          Navvy::Job.keep = true
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:completed).with('"moo"')
+          jobs.first.run
+        end
+
         it 'should mark the job as complete when keep is true' do
           Navvy::Job.keep = true
           jobs = Navvy::Job.next
           jobs.first.run
           job_count.should == 1
-          jobs.first.started_at.should be_instance_of Time
-          jobs.first.completed_at.should be_instance_of Time
+          jobs.first.started_at.should == Time.now
+          jobs.first.completed_at.should == Time.now
         end
 
-        it 'should mark the job as complete when keep has not passed yer' do
+        it 'should mark the job as complete when keep has not passed yet' do
           Navvy::Job.keep = (60 * 60)
           jobs = Navvy::Job.next
           jobs.first.run
           job_count.should == 1
-          jobs.first.started_at.should be_instance_of Time
-          jobs.first.completed_at.should be_instance_of Time
+          jobs.first.started_at.should == Time.now
+          jobs.first.completed_at.should == Time.now
         end
 
         it 'should delete the job when the "keep" flag has passed' do
@@ -243,8 +255,8 @@ describe 'Navvy::Job' do
         jobs = Navvy::Job.next
         jobs.first.run
         jobs.first.exception.should == 'this method is broken'
-        jobs.first.started_at.should be_instance_of Time
-        jobs.first.failed_at.should be_instance_of Time
+        jobs.first.started_at.should == Time.now
+        jobs.first.failed_at.should == Time.now
       end
     end
   end
@@ -358,25 +370,22 @@ describe 'Navvy::Job' do
     it 'should set the run_at date to about 16 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 2
-      now = Time.now
       job = failed_job.retry
-      job.run_at.to_i.should == (now + 16).to_i
+      job.run_at.to_i.should == (Time.now + 16).to_i
     end
 
     it 'should set the run_at date to about 256 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 4
-      now = Time.now
       job = failed_job.retry
-      job.run_at.to_i.should == (now + 256).to_i
+      job.run_at.to_i.should == (Time.now + 256).to_i
     end
 
     it 'should set the run_at date to about 4096 seconds from now' do
       failed_job = Navvy::Job.enqueue(Cow, :speak, 'name' => 'Betsy')
       failed_job.stub!(:times_failed).and_return 8
-      now = Time.now
       job = failed_job.retry
-      job.run_at.to_i.should == (now + 4096).to_i
+      job.run_at.to_i.should == (Time.now + 4096).to_i
     end
 
     it 'should set the parent_id to the master job id' do
@@ -458,7 +467,7 @@ describe 'Navvy::Job' do
         :completed_at =>  Time.now
       )
 
-      job.duration.should >= 2
+      job.duration.should == 2
     end
 
     it 'should return a duration if started_at and failed_at are set' do
@@ -467,7 +476,7 @@ describe 'Navvy::Job' do
         :failed_at =>   Time.now
       )
 
-      job.duration.should >= 3
+      job.duration.should == 3
     end
 
     it 'should return 0 if only started_at is set' do
@@ -488,9 +497,9 @@ describe 'Navvy::Job' do
   end
 
   describe '#namespaced' do
-		it 'should accept a namespaced class name' do
+    it 'should accept a namespaced class name' do
       job = Navvy::Job.enqueue(Animals::Cow, :speak)
-      job.run.should == 'moo'
+      job.run.should == '"moo"'
     end
   end
 end

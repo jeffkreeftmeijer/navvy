@@ -10,7 +10,7 @@ module Navvy
     # @param [Symbol, String] method_name the name of the method you want to run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -22,7 +22,7 @@ module Navvy
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
-        :arguments =>   args,
+        :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
@@ -43,8 +43,8 @@ module Navvy
 
     def self.next(limit = self.limit)
       all(
-        :conditions =>    [
-          '`failed_at` IS NULL AND `completed_at` IS NULL AND `run_at` <= ?',
+        :conditions => [
+          "#{connection.quote_column_name('failed_at')} IS NULL AND #{connection.quote_column_name('completed_at')} IS NULL AND #{connection.quote_column_name('run_at')} <= ?",
           Time.now
         ],
         :limit =>         limit,
@@ -62,12 +62,12 @@ module Navvy
     def self.cleanup
       if keep.is_a? Fixnum
         delete_all([
-          '`completed_at` <= ?',
+          "#{connection.quote_column_name('completed_at')} <= ?",
           keep.ago
         ])
       else
         delete_all(
-          '`completed_at` IS NOT NULL'
+          "#{connection.quote_column_name('completed_at')} IS NOT NULL"
         ) unless keep?
       end
     end
@@ -127,10 +127,10 @@ module Navvy
     def times_failed
       i = parent_id || id
       self.class.count(
-        :conditions => "(`id` = '#{i}' OR `parent_id` = '#{i}') AND `failed_at` IS NOT NULL"
+        :conditions => "(#{connection.quote_column_name('id')} = '#{i}' OR #{connection.quote_column_name('parent_id')} = '#{i}') AND #{connection.quote_column_name('failed_at')} IS NOT NULL"
       )
     end
   end
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../job')
+require 'navvy/job'

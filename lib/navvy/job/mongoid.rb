@@ -11,7 +11,7 @@ module Navvy
     field :priority,      :type => Integer, :default => 0
     field :return,        :type => String
     field :exception,     :type => String
-    field :parent_id,     :type => String
+    field :parent_id,     :type => BSON::ObjectId
     field :created_at,    :type => Time
     field :run_at,        :type => Time
     field :started_at,    :type => Time
@@ -29,7 +29,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -136,4 +136,4 @@ module Navvy
   end
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../job')
+require 'navvy/job'

@@ -18,4 +18,4 @@ Sequel::DATABASES[0].create_table!(:jobs) do
   DateTime  :failed_at
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../../lib/navvy/job/sequel')
+require 'navvy/job/sequel'

@@ -25,7 +25,7 @@ module Navvy
     # run
     # @param [*] arguments optional arguments you want to pass to the method
     #
-    # @return [true, false]
+    # @return [Job, false] created Job or false if failed
 
     def self.enqueue(object, method_name, *args)
       options = {}
@@ -147,4 +147,4 @@ module Navvy
   end
 end
 
-require File.expand_path(File.dirname(__FILE__) + '/../job')
+require 'navvy/job'
