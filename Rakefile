@@ -4,7 +4,7 @@ require 'rspec/core/rake_task'
 adapters = Dir[File.dirname(__FILE__) + '/lib/navvy/job/*.rb'].map{|file| File.basename(file, '.rb') }
 
 task :rspec do
-  adapters.map{|adapter| "spec:#{adapter}"}.each do |spec|
+  adapters.map{|adapter| "rspec:#{adapter}"}.each do |spec|
     Rake::Task[spec].invoke
   end
 end
