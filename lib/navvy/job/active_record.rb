@@ -22,7 +22,7 @@ module Navvy
       create(
         :object =>      object.to_s,
         :method_name => method_name.to_s,
-        :arguments =>   args,
+        :arguments =>   args.to_yaml,
         :priority =>    options[:priority] || 0,
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
