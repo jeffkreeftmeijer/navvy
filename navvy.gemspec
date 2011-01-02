@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name    = 'navvy'
-  gem.version = '0.3.0'
+  gem.version = '0.3.2'
   gem.date    = Date.today.to_s
 
   gem.summary = "Simple background job processor inspired by delayed_job, but aiming for database agnosticism."

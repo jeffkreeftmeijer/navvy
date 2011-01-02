@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    navvy (0.3.0)
+    navvy (0.3.2)
 
 GEM
   remote: http://rubygems.org/
