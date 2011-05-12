@@ -24,6 +24,10 @@ class Cow
   def self.broken
     raise 'this method is broken'
   end
+
+  def self.broken_no_retry
+    raise Navvy::Job::NoRetryException.new("this method is broken with no retry")
+  end
 end
 
 module Animals

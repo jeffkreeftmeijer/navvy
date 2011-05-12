@@ -4,6 +4,10 @@ module Navvy
       attr_writer :limit, :keep, :max_attempts
     end
 
+    # Raise this exception in a job to mark it as having failed to such a degree
+    # that there's no point retrying it
+    class NoRetryException < StandardError; end
+
     ##
     # Limit of jobs to be fetched at once. Will use the value stored in
     # Navvy.configuration (defaults to 100), or -- for backwards compatibility
@@ -67,6 +71,8 @@ module Navvy
         result = constantize(object).send(method_name, *args).inspect
         Navvy::Job.keep? ? completed(result) : destroy
         result
+      rescue NoRetryException => exception
+        failed(exception.message, false)
       rescue Exception => exception
         failed(exception.message)
       end

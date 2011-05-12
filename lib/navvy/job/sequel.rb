@@ -105,15 +105,16 @@ module Navvy
     ##
     # Mark the job as failed. Will set failed_at to the current time and
     # optionally add the exception message if provided. Also, it will retry
-    # the job unless max_attempts has been reached.
+    # the job unless max_attempts has been reached or retryable is false.
     #
     # @param [String] exception the exception message you want to store.
+    # @param [true, false] whether or not to attempt to retry the job
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
 
-    def failed(message = nil)
-      self.retry unless times_failed >= self.class.max_attempts
+    def failed(message = nil, retryable = true)
+      self.retry unless !retryable || times_failed >= self.class.max_attempts
       update(
         :failed_at => Time.now,
         :exception => message

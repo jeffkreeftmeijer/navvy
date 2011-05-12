@@ -246,17 +246,49 @@ describe 'Navvy::Job' do
     end
 
     describe 'when a job fails' do
-      before(:each) do
-        Navvy::Job.delete_all
-        Navvy::Job.enqueue(Cow, :broken)
+
+      describe 'with a standard exception' do
+
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :broken)
+        end
+
+        it 'should store the exception and current time' do
+          jobs = Navvy::Job.next
+          jobs.first.run
+          jobs.first.exception.should == 'this method is broken'
+          jobs.first.started_at.should == Time.now
+          jobs.first.failed_at.should == Time.now
+        end
+
+        it 'should call Job#failed with the exception message' do
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:failed).with('this method is broken')
+          jobs.first.run
+        end
       end
 
-      it 'should store the exception and current time' do
-        jobs = Navvy::Job.next
-        jobs.first.run
-        jobs.first.exception.should == 'this method is broken'
-        jobs.first.started_at.should == Time.now
-        jobs.first.failed_at.should == Time.now
+      describe 'with a Navvy::Job::NoRetryException' do
+
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :broken_no_retry)
+        end
+
+        it 'should store the exception and current time' do
+          jobs = Navvy::Job.next
+          jobs.first.run
+          jobs.first.exception.should == 'this method is broken with no retry'
+          jobs.first.started_at.should == Time.now
+          jobs.first.failed_at.should == Time.now
+        end
+
+        it 'should call Job#failed with the exception message and no retry' do
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:failed).with('this method is broken with no retry', false)
+          jobs.first.run
+        end
       end
     end
   end
@@ -330,6 +362,12 @@ describe 'Navvy::Job' do
       jobs.first.stub!(:times_failed).and_return 10
       jobs.first.should_not_receive(:retry)
       jobs.first.failed('broken')
+    end
+
+    it 'should not retry if retryable is false' do
+      jobs = Navvy::Job.next
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken', false)
     end
   end
 
