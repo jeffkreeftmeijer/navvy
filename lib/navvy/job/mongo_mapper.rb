@@ -80,7 +80,7 @@ module Navvy
 
         rescue Mongo::OperationFailure => e
           # raises Mongo::OperationFailure when nothing is found (IE no jobs left)
-          nil
+          []
         end
       else
         all(
