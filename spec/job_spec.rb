@@ -144,6 +144,60 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe "parallel .next" do
+    before(:each) do
+      Navvy.configure do |config|
+        config.parallel = true
+      end
+
+      Navvy::Job.delete_all
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :last,
+        :created_at =>  Time.now + (60 * 60),
+        :run_at =>      Time.now
+      )
+      Navvy::Job.create(
+        :object =>        'Cow',
+        :method_name =>   :break,
+        :completed_at =>  Time.now,
+        :run_at =>        Time.now
+      )
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :break,
+        :failed_at =>   Time.now,
+        :run_at =>      Time.now
+      )
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :tomorrow,
+        :run_at =>      Time.now + (60 * 60)
+      )
+      120.times do
+        Navvy::Job.enqueue(Cow, :speak)
+      end
+    end
+
+    after(:each) do
+      Navvy.configure do |config|
+        config.parallel = false
+      end
+    end
+
+    it "should return the next 1 available job" do
+      Navvy::Job.next.length.should == 1
+    end
+
+    it "should mark the job as started" do
+      Navvy::Job.next[0].started_at.should_not be_nil
+    end
+
+    it "should ignore job length" do
+      Navvy::Job.next(100).length.should == 1
+    end
+  end
+
   describe '.cleanup' do
     before(:each) do
       Navvy::Job.delete_all

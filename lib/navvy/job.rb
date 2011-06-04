@@ -42,6 +42,22 @@ module Navvy
     end
 
     ##
+    # Whether workers are running in parallel
+    # Currently only implemented in the mongo_mapper adapter using findAndModify
+    # so we can update atomically and return the next job
+    #
+    # If true, only one job is processed at a time (limit is ignored) as findAndModify
+    # only returns one item
+    #
+    # Uses the value in Navvy.configuration (defaults to false)
+    #
+    # @return [Boolean] parallel
+
+    def self.parallel
+      Navvy.configuration.parallel
+    end
+
+    ##
     # Should the job be kept? Will calculate if the keeptime has passed if
     # @keep is a Fixnum. Otherwise, it'll just return the @keep value since
     # it's probably a boolean.

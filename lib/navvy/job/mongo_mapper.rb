@@ -51,19 +51,45 @@ module Navvy
     # (where :run_at is greater than the current time).
     #
     # @param [Integer] limit the limit of jobs to be fetched. Defaults to
-    # Navvy::Job.limit
+    # Navvy::Job.limit (ignored if Navvy::Job.parallel is true)
     #
     # @return [array, nil] the next available jobs in an array or nil if no
     # jobs were found.
 
     def self.next(limit = self.limit)
-      all(
+      query = {
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at =>        {'$lte' => Time.now},
-        :order =>         'priority desc, created_at asc',
-        :limit =>         limit
-      )
+        :run_at =>        {'$lte' => Time.now}
+      }
+
+      if Navvy::Job.parallel
+        begin
+          started = Time.now
+
+          result = Navvy::Job.collection.find_and_modify(
+            :query => query.merge(:started_at => nil),
+            :update => { :$set => {:started_at => started} },
+            :sort => 'priority desc, created_at asc'
+          )
+
+          # we could return the actual object by setting :new => true
+          # but we know exactly what we set so there's no point waiting
+          # update the returned document so it's the same as in the db
+          [Navvy::Job.load(result.merge(:started_at => started))]
+
+        rescue Mongo::OperationFailure => e
+          # raises Mongo::OperationFailure when nothing is found (IE no jobs left)
+          nil
+        end
+      else
+        all(
+          query.merge(
+            :order => 'priority desc, created_at asc',
+            :limit => limit
+          )
+        )
+      end
     end
 
     ##
@@ -88,10 +114,13 @@ module Navvy
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
+    # If running jobs in parallel, it's already marked as started so this is a no-op
+    #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
 
     def started
+      return if Navvy::Job.parallel
       update_attributes({
         :started_at =>  Time.now
       })
