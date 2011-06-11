@@ -10,6 +10,7 @@ module Navvy
     key :priority,      Integer, :default => 0
     key :return,        String
     key :exception,     String
+    key :backtrace,     String
     key :parent_id,     ObjectId
     key :created_at,    Time
     key :run_at,        Time
@@ -153,11 +154,12 @@ module Navvy
     # @return [true, false] update_attributes the result of the
     # update_attributes call
 
-    def failed(message = nil, retryable = true)
+    def failed(message = nil, backtrace = nil, retryable = true)
       self.retry unless !retryable || times_failed >= self.class.max_attempts
       update_attributes(
         :failed_at => Time.now,
-        :exception => message
+        :exception => message,
+        :backtrace => backtrace.try(:join, "\n")
       )
     end
 

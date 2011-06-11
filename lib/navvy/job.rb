@@ -88,9 +88,9 @@ module Navvy
         Navvy::Job.keep? ? completed(result) : destroy
         result
       rescue NoRetryException => exception
-        failed(exception.message, false)
+        failed(exception.message, nil, false)
       rescue Exception => exception
-        failed(exception.message)
+        failed(exception.message, exception.backtrace)
       end
     end
 
