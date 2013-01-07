@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.files = Dir['{generators,lib,spec}/**/*', 'README*', 'LICENSE*'] & `git ls-files -z`.split("\0")
 
   gem.add_development_dependency('rake')
-  gem.add_development_dependency('sqlite3-ruby')
+  gem.add_development_dependency('sqlite3')
   gem.add_development_dependency('bson_ext')
   gem.add_development_dependency('rspec', ["~> 2.0"])
   gem.add_development_dependency('yard', [">= 0.5.2"])
