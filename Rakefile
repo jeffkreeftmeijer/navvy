@@ -1,7 +1,7 @@
 require 'rake'
 require 'rspec/core/rake_task'
 
-adapters = Dir[File.dirname(__FILE__) + '/lib/navvy/job/sequelhooks.rb'].map{|file| File.basename(file, '.rb') }
+adapters = Dir[File.dirname(__FILE__) + '/lib/navvy/job/*.rb'].map{|file| File.basename(file, '.rb') }
 
 task :rspec do
   adapters.map{|adapter| "rspec:#{adapter}"}.each do |spec|
