@@ -12,7 +12,11 @@ end
 namespace :rspec do
   adapters.each do |adapter|
     RSpec::Core::RakeTask.new(adapter) do |spec|
-      spec.pattern = "spec/setup/#{adapter}.rb", 'spec/*_spec.rb'
+      if adapter=="sequelhooks"
+        spec.pattern = "spec/zhooks.rb", "spec/setup/#{adapter}.rb", "spec/*_spec.rb" 
+      else
+        spec.pattern = "spec/setup/#{adapter}.rb", 'spec/*_spec.rb'
+      end
     end
   end
 end
