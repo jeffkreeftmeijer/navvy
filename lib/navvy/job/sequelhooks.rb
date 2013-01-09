@@ -32,7 +32,7 @@ module Navvy
         :parent_id =>   options[:parent_id],
         :run_at =>      options[:run_at] || Time.now,
         :created_at =>  Time.now
-      )]
+      ).id]
     end
 
     ##
