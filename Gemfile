@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 group :active_record do
-  gem 'activerecord', '>= 2.3.5'
+  gem 'activerecord', '~> 3.2.12'
 end
 
 group :data_mapper do
