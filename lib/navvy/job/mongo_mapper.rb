@@ -74,6 +74,8 @@ module Navvy
             :sort => 'priority desc, created_at asc'
           )
 
+          return [] if result.nil?
+
           # we could return the actual object by setting :new => true
           # but we know exactly what we set so there's no point waiting
           # update the returned document so it's the same as in the db
