@@ -7,6 +7,7 @@ describe Navvy::Configuration do
       config.keep_jobs =  false
       config.logger =     Navvy::Logger.new('/dev/null')
       config.sleep_time = 5
+      config.parallel =   false
     end
   end
 
@@ -65,4 +66,13 @@ describe Navvy::Configuration do
 
     Navvy::Job.max_attempts.should == 15
   end
+  
+  it "should set parallel to true" do
+    Navvy.configure do |config|
+      config.parallel = true
+    end
+
+    Navvy::Job.parallel.should == true
+  end
+  
 end

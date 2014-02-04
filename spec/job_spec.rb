@@ -144,6 +144,60 @@ describe 'Navvy::Job' do
     end
   end
 
+  describe "parallel .next" do
+    before(:each) do
+      Navvy.configure do |config|
+        config.parallel = true
+      end
+
+      Navvy::Job.delete_all
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :last,
+        :created_at =>  Time.now + (60 * 60),
+        :run_at =>      Time.now
+      )
+      Navvy::Job.create(
+        :object =>        'Cow',
+        :method_name =>   :break,
+        :completed_at =>  Time.now,
+        :run_at =>        Time.now
+      )
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :break,
+        :failed_at =>   Time.now,
+        :run_at =>      Time.now
+      )
+      Navvy::Job.create(
+        :object =>      'Cow',
+        :method_name => :tomorrow,
+        :run_at =>      Time.now + (60 * 60)
+      )
+      120.times do
+        Navvy::Job.enqueue(Cow, :speak)
+      end
+    end
+
+    after(:each) do
+      Navvy.configure do |config|
+        config.parallel = false
+      end
+    end
+
+    it "should return the next 1 available job" do
+      Navvy::Job.next.length.should == 1
+    end
+
+    it "should mark the job as started" do
+      Navvy::Job.next[0].started_at.should_not be_nil
+    end
+
+    it "should ignore job length" do
+      Navvy::Job.next(100).length.should == 1
+    end
+  end
+
   describe '.cleanup' do
     before(:each) do
       Navvy::Job.delete_all
@@ -246,17 +300,49 @@ describe 'Navvy::Job' do
     end
 
     describe 'when a job fails' do
-      before(:each) do
-        Navvy::Job.delete_all
-        Navvy::Job.enqueue(Cow, :broken)
+
+      describe 'with a standard exception' do
+
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :broken)
+        end
+
+        it 'should store the exception and current time' do
+          jobs = Navvy::Job.next
+          jobs.first.run
+          jobs.first.exception.should == 'this method is broken'
+          jobs.first.started_at.should == Time.now
+          jobs.first.failed_at.should == Time.now
+        end
+
+        it 'should call Job#failed with the exception message' do
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:failed).with('this method is broken')
+          jobs.first.run
+        end
       end
 
-      it 'should store the exception and current time' do
-        jobs = Navvy::Job.next
-        jobs.first.run
-        jobs.first.exception.should == 'this method is broken'
-        jobs.first.started_at.should == Time.now
-        jobs.first.failed_at.should == Time.now
+      describe 'with a Navvy::Job::NoRetryException' do
+
+        before(:each) do
+          Navvy::Job.delete_all
+          Navvy::Job.enqueue(Cow, :broken_no_retry)
+        end
+
+        it 'should store the exception and current time' do
+          jobs = Navvy::Job.next
+          jobs.first.run
+          jobs.first.exception.should == 'this method is broken with no retry'
+          jobs.first.started_at.should == Time.now
+          jobs.first.failed_at.should == Time.now
+        end
+
+        it 'should call Job#failed with the exception message and no retry' do
+          jobs = Navvy::Job.next
+          jobs.first.should_receive(:failed).with('this method is broken with no retry', false)
+          jobs.first.run
+        end
       end
     end
   end
@@ -330,6 +416,12 @@ describe 'Navvy::Job' do
       jobs.first.stub!(:times_failed).and_return 10
       jobs.first.should_not_receive(:retry)
       jobs.first.failed('broken')
+    end
+
+    it 'should not retry if retryable is false' do
+      jobs = Navvy::Job.next
+      jobs.first.should_not_receive(:retry)
+      jobs.first.failed('broken', false)
     end
   end
 

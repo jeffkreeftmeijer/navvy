@@ -4,6 +4,10 @@ module Navvy
       attr_writer :limit, :keep, :max_attempts
     end
 
+    # Raise this exception in a job to mark it as having failed to such a degree
+    # that there's no point retrying it
+    class NoRetryException < StandardError; end
+
     ##
     # Limit of jobs to be fetched at once. Will use the value stored in
     # Navvy.configuration (defaults to 100), or -- for backwards compatibility
@@ -38,6 +42,22 @@ module Navvy
     end
 
     ##
+    # Whether workers are running in parallel
+    # Currently only implemented in the mongo_mapper adapter using findAndModify
+    # so we can update atomically and return the next job
+    #
+    # If true, only one job is processed at a time (limit is ignored) as findAndModify
+    # only returns one item
+    #
+    # Uses the value in Navvy.configuration (defaults to false)
+    #
+    # @return [Boolean] parallel
+
+    def self.parallel
+      Navvy.configuration.parallel
+    end
+
+    ##
     # Should the job be kept? Will calculate if the keeptime has passed if
     # @keep is a Fixnum. Otherwise, it'll just return the @keep value since
     # it's probably a boolean.
@@ -67,8 +87,10 @@ module Navvy
         result = constantize(object).send(method_name, *args).inspect
         Navvy::Job.keep? ? completed(result) : destroy
         result
+      rescue NoRetryException => exception
+        failed(exception.message, nil, false)
       rescue Exception => exception
-        failed(exception.message)
+        failed(exception.message, exception.backtrace)
       end
     end
 

@@ -10,6 +10,7 @@ module Navvy
     key :priority,      Integer, :default => 0
     key :return,        String
     key :exception,     String
+    key :backtrace,     String
     key :parent_id,     ObjectId
     key :created_at,    Time
     key :run_at,        Time
@@ -51,19 +52,47 @@ module Navvy
     # (where :run_at is greater than the current time).
     #
     # @param [Integer] limit the limit of jobs to be fetched. Defaults to
-    # Navvy::Job.limit
+    # Navvy::Job.limit (ignored if Navvy::Job.parallel is true)
     #
     # @return [array, nil] the next available jobs in an array or nil if no
     # jobs were found.
 
     def self.next(limit = self.limit)
-      all(
+      query = {
         :failed_at =>     nil,
         :completed_at =>  nil,
-        :run_at =>        {'$lte' => Time.now},
-        :order =>         'priority desc, created_at asc',
-        :limit =>         limit
-      )
+        :run_at =>        {'$lte' => Time.now}
+      }
+
+      if Navvy::Job.parallel
+        begin
+          started = Time.now
+
+          result = Navvy::Job.collection.find_and_modify(
+            :query => query.merge(:started_at => nil),
+            :update => { :$set => {:started_at => started} },
+            :sort => 'priority desc, created_at asc'
+          )
+
+          return [] if result.nil?
+
+          # we could return the actual object by setting :new => true
+          # but we know exactly what we set so there's no point waiting
+          # update the returned document so it's the same as in the db
+          [Navvy::Job.load(result.merge(:started_at => started))]
+
+        rescue Mongo::OperationFailure => e
+          # raises Mongo::OperationFailure when nothing is found (IE no jobs left)
+          []
+        end
+      else
+        all(
+          query.merge(
+            :order => 'priority desc, created_at asc',
+            :limit => limit
+          )
+        )
+      end
     end
 
     ##
@@ -88,10 +117,13 @@ module Navvy
     ##
     # Mark the job as started. Will set started_at to the current time.
     #
+    # If running jobs in parallel, it's already marked as started so this is a no-op
+    #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
 
     def started
+      return if Navvy::Job.parallel
       update_attributes({
         :started_at =>  Time.now
       })
@@ -116,18 +148,20 @@ module Navvy
     ##
     # Mark the job as failed. Will set failed_at to the current time and
     # optionally add the exception message if provided. Also, it will retry
-    # the job unless max_attempts has been reached.
+    # the job unless max_attempts has been reached or retryable is false.
     #
     # @param [String] exception the exception message you want to store.
+    # @param [true, false] whether or not to attempt to retry the job
     #
     # @return [true, false] update_attributes the result of the
     # update_attributes call
 
-    def failed(message = nil)
-      self.retry unless times_failed >= self.class.max_attempts
+    def failed(message = nil, backtrace = nil, retryable = true)
+      self.retry unless !retryable || times_failed >= self.class.max_attempts
       update_attributes(
         :failed_at => Time.now,
-        :exception => message
+        :exception => message,
+        :backtrace => backtrace.try(:join, "\n")
       )
     end
 
